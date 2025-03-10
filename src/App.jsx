@@ -1,15 +1,19 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Dashboard from './component/Dashboard';
-// import DragDropApp from './component/DragDropApp';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Dashboard from "../src/component/Dashboard";
+import SalesAnalysis from "../src/component/SalesAnalysis";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Dashboard />}>
+          {/* Nested routes will render inside the Outlet in the Dashboard component */}
+          {/* <Route index element={<Navigate to="/sales-analysis" replace />} /> */}
+          <Route path="sales-analysis" element={<SalesAnalysis />} />
+          {/* You can add more nested routes here as needed */}
+        </Route>
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
