@@ -1,11 +1,33 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React</title>
-  </head>
+    <style>
+        /* Global scrollbar styles */
+        body {
+            overflow: auto; /* Enable scrolling if needed */
+        }
+
+        /* Rounded scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #a6a6a6; /* Thumb color (changeable) */
+            border-radius: 10px; /* Rounded corners */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
