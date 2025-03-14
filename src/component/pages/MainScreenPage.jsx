@@ -3,13 +3,29 @@
 import { Box, Tab, Avatar, Typography, List, ListItem, ListItemAvatar, ListItemText, Divider, Button, ListItemButton } from "@mui/material";
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-
+import { useDispatch, useSelector } from "react-redux";
+import { showScreenPage, hideScreenPage } from '../Slice/GeneralStateSlice';
+import { useNavigate } from 'react-router-dom';
 
 export default function MainScreenPage() {
-    const [menuState, setMenuState] = useState("Reports");
-    const [selectedItem, setSelectedItem] = useState(null);
+    const navigate = useNavigate();
+    const [localSelectedItem, setlocalSelectedItem] = useState(null);
     const [activeSubItems, setActiveSubItems] = useState([]);
     const [subMenuPosition, setSubMenuPosition] = useState(0);
+
+
+    let globalSelectedItem = useSelector((state) => state.generalState.mainScreenItem);
+
+    const menuState = useSelector((state) => state.generalState.mainScreenItem);
+
+
+    //globalSelectedItem = globalSelectedItem.replace(" ", "_");
+
+    //const [menuState, setMenuState] = useState(globalSelectedItem);
+
+    const dispatch = useDispatch();
+
+    console.log('the selected item from dashboard: ' + globalSelectedItem);
 
     // Create refs for each list item
     const itemRefs = useRef({});
@@ -20,13 +36,17 @@ export default function MainScreenPage() {
             { id: 2, title: 'Master 2' },
             { id: 3, title: 'Master 3' },
         ],
-        Allied_Master: [],
-        Linking: [],
+        Allied_Master: [
+            { id: 1, title: 'Allied Master 1' },
+            { id: 2, title: 'Allied Master 2' },
+            { id: 3, title: 'Allied Master 3' },
+        ],
+        Linking: [{ id: 1, title: 'Option 1' },],
         Target: [],
         Other: [],
         Reports: [
             { id: 1, title: 'Sales', subItems: ['Invoice Count', 'Sales Analysis', 'YTD Availability'] },
-            { id: 2, title: 'Scheme', subItems: ['option 1', 'option 2','option 3'] },
+            { id: 2, title: 'Scheme', subItems: ['option 1', 'option 2', 'option 3'] },
             { id: 3, title: 'Status', subItems: ['Status Item 1', 'Status Item 2'] },
             { id: 4, title: 'Analytics', subItems: ['option 1', 'option 2'] },
             { id: 5, title: 'Purchase', subItems: ['option 1', 'option 2'] },
@@ -35,17 +55,22 @@ export default function MainScreenPage() {
             { id: 8, title: 'Target', subItems: ['option 1', 'option 2'] },
             { id: 9, title: 'Dump Report', subItems: ['option 1', 'option 2'] },
             { id: 10, title: 'Zylem Table View', subItems: ['option 1', 'option 2'] },
-            { id: 11, title: 'Listing', subItems: ['option 1', 'option 2', 'option 3', 'option 4', 'option 5', 'option 6'] },
+            { id: 11, title: 'Listing', subItems: ['option 1', 'option 2', 'option 3'] },
         ],
         Settings: [],
+        Transactions: [],
+        NOC_status:[],
     };
 
     const handleCancel = () => {
         console.log('cancel button clicked');
+        navigate("/");
+
+
     };
 
     const handleItemClick = (item) => {
-        setSelectedItem(item.id);
+        setlocalSelectedItem(item.id);
         setActiveSubItems(item.subItems || []);
 
         // Get position of the clicked item for subnavigation positioning
@@ -55,15 +80,23 @@ export default function MainScreenPage() {
         }
     };
 
+    const handleSubItemClick = (subItem) => {
+        console.log(subItem);
+
+        if (subItem == 'Sales Analysis') {
+            navigate("/mainScreenPage/SalesAnalysisPage")
+
+        }
+    };
+
     return (
         <>
-            <Box sx={{ display: "flex", width: "100%", position: "relative" }}>
+            <Box sx={{ display: "flex", width: "100%", height: "100%", position: "relative", zIndex: '90' }}>
                 {/* Main navigation */}
                 <Box
                     sx={{
                         width: "200px",
                         backgroundColor: "#f5f5f5",
-                        borderRadius: "5px",
                         border: "1px solid #D1D5DB",
                         display: "flex",
                         flexDirection: "column",
@@ -89,16 +122,17 @@ export default function MainScreenPage() {
                                 <ListItemButton
                                     onClick={() => handleItemClick(item)}
                                     sx={{
-                                        '&:hover': { backgroundColor: '#e0f7fa' },
-                                        borderLeft: selectedItem === item.id ? '4px solid #03438d' : 'none',
-                                        backgroundColor: selectedItem === item.id ? '#e3f2fd' : 'transparent',
+                                        '&:hover': { backgroundColor: '#e3f2fd', borderLeft: '4px solid #03438d' },
+                                        borderLeft: localSelectedItem === item.id ? '4px solid #03438d' : 'none',
+                                        backgroundColor: localSelectedItem === item.id ? '#e3f2fd' : 'transparent',
                                         display: 'flex',
                                         justifyContent: 'left',
                                         pl: 0,
+                                        py: 0.7
                                     }}
                                 >
-                                    <ChevronRightRoundedIcon sx={{ fontSize: "20px", mr: 2, ml: 1 }} />
-                                    <Typography sx={{ whiteSpace: 'normal', wordWrap: 'break-word', overflow: 'hidden', fontSize: "14px" }}>
+                                    <ChevronRightRoundedIcon sx={{ fontSize: "16px", mr: 2, ml: 1 }} />
+                                    <Typography sx={{ whiteSpace: 'normal', wordWrap: 'break-word', overflow: 'hidden', fontSize: "12px" }}>
                                         {item.title}
                                     </Typography>
                                 </ListItemButton>
@@ -120,14 +154,14 @@ export default function MainScreenPage() {
                             backgroundColor: "#f5f5f5",
                             borderLeft: 'none',
                             borderTopRightRadius: "5px",
-                            borderBottomRightRadius: "5px"
+                            borderBottomRightRadius: "5px",
                         }}
                     >
                         {activeSubItems.map((subItem, index) => (
-                            <ListItem key={index} disablePadding>
-                                <ListItemButton sx={{ '&:hover': { backgroundColor: '#e0f7fa' }, pl: 1 }}>
+                            <ListItem key={index} disablePadding >
+                                <ListItemButton sx={{ '&:hover': { backgroundColor: '#e3f2fd', borderLeft: '4px solid #03438d' }, pl: 1, py: 0.7 }} onClick={() => handleSubItemClick(subItem)}>
                                     <ChevronRightRoundedIcon sx={{ fontSize: "16px", mr: 1 }} />
-                                    <Typography sx={{ whiteSpace: 'normal', wordWrap: 'break-word', fontSize: "14px" }}>
+                                    <Typography sx={{ whiteSpace: 'normal', wordWrap: 'break-word', fontSize: "12px" }}>
                                         {subItem}
                                     </Typography>
                                 </ListItemButton>

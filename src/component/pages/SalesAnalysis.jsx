@@ -10,17 +10,31 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Button from "@mui/material/Button";
 import NotificationPage from '../pages/NotificationPage'
 import Divider from "@mui/material/Divider";
-import { MenuItem } from "@mui/material";
+import { MenuItem, Stack, FormControl, OutlinedInput, Select, InputLabel, Breadcrumbs } from "@mui/material";
+import Link from '@mui/material/Link';
 import CloseIcon1 from '@mui/icons-material/Close';
-import CloseIcon from "../../icons/do_not_disturb_on_25dp_EA3323_FILL0_wght400_GRAD0_opsz24.svg";
+import MinusCloseIcon from "../../icons/do_not_disturb_on_25dp_EA3323_FILL0_wght400_GRAD0_opsz24.svg";
 import EditIcon from "../../icons/border_color_25dp_2854C5_FILL0_wght400_GRAD0_opsz24.svg";
 import DragIndicatorIcon from "../../icons/drag_indicator_25dp_CCCCCC_FILL0_wght400_GRAD0_opsz24.svg";
 import SigmaIcon from "../../icons/functions_24dp_75FB4C_FILL0_wght400_GRAD0_opsz24.svg";
 import UpDownArrawIcon from "../../icons/swap_vert_25dp_F19E39_FILL0_wght400_GRAD0_opsz24.svg";
 import FilterIcon from "../../icons/filter_alt_25dp_48752C_FILL0_wght400_GRAD0_opsz24.svg";
+import DocsAddIcon from "../../icons/docs_add_on_25dp_48752C_FILL0_wght400_GRAD0_opsz24.svg";
+import CloseIcon from "../../icons/close_icon.svg";
 import Popover from "@mui/material/Popover";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Tooltip from "@mui/material/Tooltip";
+import { List, ListItem } from "@mui/material";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import dayjs from 'dayjs';
+import calandericon from "../../icons/calendar_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
+import { IconButton } from "@mui/material";
+import CenteredModal from '../pages/CenteredModal';
+import UploadIcon from "../../icons/upload_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 function SalesAnalysis() {
     const initialItems = ["Account",
@@ -36,6 +50,22 @@ function SalesAnalysis() {
         "Dealer",
         "Dealer Code",
         "Dispatch Date",];
+
+    const [openModal, setOpenModal] = useState(false);
+
+
+    const handleModalOpen = () => {
+        console.log("button clicked");
+        setOpenModal(true);
+    };
+
+    const handleModalClose = () => {
+        setOpenModal(false);
+    };
+
+
+
+    // drag and drop states
     const [controllers, setControllers] = useState([...initialItems].sort());
     const [rows, setRows] = useState([]);
     const [columns, setColumns] = useState([]);
@@ -44,14 +74,76 @@ function SalesAnalysis() {
     const [editingItem, setEditingItem] = useState(null);
     const [orderByChecked, setOrderByChecked] = useState({});
     const [subTotalChecked, setSubTotalChecked] = useState({});
-    const [criteria, setCriteria] = useState("Select Filter");
-    const [value, setValue] = useState("");
     const [isDraggingOverRows, setIsDraggingOverRows] = useState(false);
     const [isDraggingOverColumns, setIsDraggingOverColumns] = useState(false);
+    const [tempOrderByChecked, setTempOrderByChecked] = useState({});
+    const [tempSubTotalChecked, setTempSubTotalChecked] = useState({});
+    const [subtotalPanelOpen, setSubtotalPanelOpen] = useState(false);
+    const [orderByPanelOpen, setOrderByPanelOpen] = useState(false);
+    const [subtotalAnchorEl, setSubtotalAnchorEl] = useState(null);
+    const [orderByAnchorEl, setOrderByAnchorEl] = useState(null);
+
+
+    // Filter states
+    const [criteria, setCriteria] = useState("Select Filter");
+    const [value, setValue] = useState("");
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
+    const [fromCalendarAnchor, setFromCalendarAnchor] = useState(null);
+    const [toCalendarAnchor, setToCalendarAnchor] = useState(null);
+
+    // filter const avlues 
+    const fromCalendarOpen = Boolean(fromCalendarAnchor);
+    const toCalendarOpen = Boolean(toCalendarAnchor);
+
+    // drag and drop functions
+
+    const handleSubtotalIconClick = (event) => {
+        setSubtotalAnchorEl(event.currentTarget);
+        setSubtotalPanelOpen(true);
+        setOrderByPanelOpen(false);
+    };
+
+    const handleOrderByIconClick = (event) => {
+        setOrderByAnchorEl(event.currentTarget);
+        setOrderByPanelOpen(true);
+        setSubtotalPanelOpen(false);
+    };
+
+    const handleCloseSubtotalPanel = () => {
+        setSubtotalPanelOpen(false);
+        setSubtotalAnchorEl(null);
+    };
+
+    const handleCloseOrderByPanel = () => {
+        setOrderByPanelOpen(false);
+        setOrderByAnchorEl(null);
+    };
+
+    const handleRemoveSubtotal = (item) => {
+        const newSubTotalChecked = { ...subTotalChecked };
+        delete newSubTotalChecked[item];
+        setSubTotalChecked(newSubTotalChecked);
+    };
+
+    const handleRemoveOrderBy = (item) => {
+        const newOrderByChecked = { ...orderByChecked };
+        delete newOrderByChecked[item];
+        setOrderByChecked(newOrderByChecked);
+    };
 
     const handleEditClick = (event, item) => {
         setEditPopoverAnchorEl(event.currentTarget);
         setEditingItem(item);
+
+        setTempOrderByChecked({
+            ...tempOrderByChecked,
+            [item]: orderByChecked[item] || false
+        });
+        setTempSubTotalChecked({
+            ...tempSubTotalChecked,
+            [item]: subTotalChecked[item] || false
+        });
     };
 
     const handleEditClose = () => {
@@ -60,82 +152,78 @@ function SalesAnalysis() {
     };
 
     const handleSaveSettings = () => {
-        // Save the current state for the item being edited
-        // You might want to update your main data structure here
+        setOrderByChecked({
+            ...orderByChecked,
+            [editingItem]: tempOrderByChecked[editingItem]
+        });
+        setSubTotalChecked({
+            ...subTotalChecked,
+            [editingItem]: tempSubTotalChecked[editingItem]
+        });
         handleEditClose();
     };
 
-    // Filter controllers based on search input
-    const filteredItems = controllers.filter((item) =>
-        item.toLowerCase().includes(search.toLowerCase())
-    );
     const onDragEnd = (result) => {
-        // Reset dragging states
         setIsDraggingOverRows(false);
         setIsDraggingOverColumns(false);
-
         const { source, destination } = result;
         if (!destination) return;
 
-        // Only allow dragging FROM controllers TO rows/columns
         if (source.droppableId !== "controllers") {
-            // If trying to drag from rows or columns, do nothing
             return;
         }
-
-        // Get the actual item that was dragged based on the filtered list index
         const actualItem = filteredItems[source.index];
-
-        // If destination is rows or columns, add the item and remove from controllers
         if (destination.droppableId === "rows") {
             const newRows = [...rows];
             newRows.splice(destination.index, 0, actualItem);
             setRows(newRows);
-
-            // Remove from controllers
             setControllers(controllers.filter(item => item !== actualItem));
         }
         else if (destination.droppableId === "columns") {
             const newColumns = [...columns];
             newColumns.splice(destination.index, 0, actualItem);
             setColumns(newColumns);
-
-            // Remove from controllers
             setControllers(controllers.filter(item => item !== actualItem));
         }
     };
 
+    const filteredItems = controllers.filter((item) =>
+        item.toLowerCase().includes(search.toLowerCase())
+    );
+
     const removeItem = (item, sourceList) => {
         if (sourceList === "rows") {
-            // Remove from rows
             setRows(rows.filter(rowItem => rowItem !== item));
-            // Add back to controllers
             setControllers([...controllers, item].sort());
+            const newOrderByChecked = { ...orderByChecked };
+            const newSubTotalChecked = { ...subTotalChecked };
+            delete newOrderByChecked[item];
+            delete newSubTotalChecked[item];
+            setOrderByChecked(newOrderByChecked);
+            setSubTotalChecked(newSubTotalChecked);
         } else if (sourceList === "columns") {
-            // Remove from columns
             setColumns(columns.filter(colItem => colItem !== item));
-            // Add back to controllers
             setControllers([...controllers, item].sort());
         }
     };
 
-    // Track dragging state changes
     const onDragUpdate = (update) => {
         if (!update.destination) {
             setIsDraggingOverRows(false);
             setIsDraggingOverColumns(false);
             return;
         }
-
         setIsDraggingOverRows(update.destination.droppableId === "rows");
         setIsDraggingOverColumns(update.destination.droppableId === "columns");
     };
 
     const resetRows = () => {
         setControllers(
-            (prev) => [...prev, ...rows].sort() // Always keep sorted order
+            (prev) => [...prev, ...rows].sort()
         );
         setRows([]);
+        setOrderByChecked({});
+        setSubTotalChecked({});
     };
 
     const resetColumns = () => {
@@ -145,255 +233,786 @@ function SalesAnalysis() {
         setColumns([]);
     };
 
+    const getSubTotalTooltipContent = () => {
+        const items = Object.keys(subTotalChecked).filter(key => subTotalChecked[key]);
+        if (items.length === 0) return "SubTotal";
+        return (
+            <Box>
+
+                <Typography fontSize="14px" fontWeight="bold" display="flex" alignItems="center" justifyContent="center" >
+                    Subtotal
+                </Typography>
+                <Box
+                    sx={{
+                        width: "100%",
+                        borderBottom: "1px solid white",
+
+                    }}
+                />
+                <Box>
+                    <List>
+                        {items.map((item) => (
+                            <ListItem key={item} sx={{ display: "flex", alignItems: "center", justifyContent: "center", p: 0, m: 0 }}>
+                                {item}
+                            </ListItem>
+                        ))}
+                    </List>
+                </Box>
+            </Box>
+        );
+    };
+
+    const getOrderByTooltipContent = () => {
+        const items = Object.keys(orderByChecked).filter(key => orderByChecked[key]);
+        if (items.length === 0) return "Order By";
+        return (
+            <Box>
+                <Typography fontSize="14px" fontWeight="bold" display="flex" alignItems="center" justifyContent="center" >
+                    Order By
+                </Typography>
+                <Box
+                    sx={{
+                        width: "100%",
+                        borderBottom: "1px solid white",
+                    }}
+                />
+                <Box>
+                    <List>
+                        {items.map((item) => (
+                            <ListItem key={item} sx={{ display: "flex", alignItems: "center", justifyContent: "center", p: 0, m: 0 }} >
+                                {item}
+                            </ListItem>
+                        ))}
+                    </List>
+                </Box>
+            </Box>
+        );
+    };
+
+    const getFilterTooltipContent = () => {
+        if (criteria === "Select Filter") return "Filter";
+        return (
+            <Box>
+                <Typography fontSize="14px" fontWeight="bold" display="flex" alignItems="center" justifyContent="center" >
+                    Filter
+                </Typography>
+                <Box
+                    sx={{
+                        width: "100%",
+                        borderBottom: "1px solid white",
+                    }}
+                />
+                <Typography sx={{ fontSize: "12px", display: "flex", alignItems: "center", justifyContent: "center", p: 0, m: 0 }} >
+                    {criteria}
+                </Typography>
+            </Box>
+        );
+    };
+
+
+    // Filter functions
+
     const handleCriteriaChange = (e) => {
         setCriteria(e.target.value);
         setValue(""); // Reset value when criteria changes
     };
 
+    const handleFromCalendarOpen = (event) => {
+        setFromCalendarAnchor(event.currentTarget);
+    };
+
+    const handleFromCalendarClose = () => {
+        setFromCalendarAnchor(null);
+    };
+
+    const handleFromDateChange = (date) => {
+        setFromDate(date);
+        handleFromCalendarClose();
+    };
+
+    const handleToCalendarOpen = (event) => {
+        setToCalendarAnchor(event.currentTarget);
+    };
+
+    const handleToCalendarClose = () => {
+        setToCalendarAnchor(null);
+    };
+
+    const handleToDateChange = (date) => {
+        setToDate(date);
+        handleToCalendarClose();
+    };
+
+
+
+
+    // MUI styles for Filter Panel
+    const selectStyles = {
+        borderRadius: '8px',
+        height: '32px',
+        fontSize: '12px',
+        color: '#909090',
+        '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'rgb(209, 213, 219)',
+        },
+        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#60a5fa',
+            borderWidth: '1px',
+        },
+        '& .MuiSelect-select': {
+            padding: '4px 14px',
+            borderRadius: '8px',
+        },
+        "& .MuiOutlinedInput-input": {
+            color: "gray",
+            "&::placeholder": {
+                fontSize: '12px',
+                color: "#909090",
+                opacity: 1,
+            },
+        },
+
+        "& .MuiInputBase-root": {
+            color: "#121212",
+        },
+    };
+
+    const inputStyles = {
+        borderRadius: '10px',
+        height: '35px',
+        fontSize: '12px',
+        color: '#909090',
+        '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'rgb(209, 213, 219)',
+        },
+        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#60a5fa',
+            borderWidth: '2px',
+        },
+        '& .MuiOutlinedInput-input': {
+            padding: '4px 14px',
+        }
+    };
+
+    const labelStyles = {
+        fontSize: '12px',
+        fontWeight: 500,
+        color: 'rgb(55, 65, 81)',
+        marginBottom: '4px',
+        display: 'block'
+    };
+
+    const checkboxStyles = {
+        padding: '0',
+
+        color: '#909090',
+        '&.Mui-checked': {
+            color: '#1b2c4a',
+        }
+    };
+
+    const calendarStyle = {
+        width: '239px',
+        height: '250px', // Fixed height to prevent overflow
+        borderRadius: '10px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        overflow: 'hidden', // Hide scrollbars
+        marginBottom: 0,
+
+        '& .MuiPickersCalendarHeader-root': {
+            backgroundColor: '#1a2b4b',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            width: "100%",
+            marginTop: 0,
+            justifyContent: 'space-between',
+            color: 'white',
+            padding: '0 12px',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+        },
+
+        '& .MuiPickersCalendarHeader-label': {
+            fontSize: '14px',
+            fontWeight: '500',
+        },
+
+        '& .MuiPickersArrowSwitcher-root, & .MuiPickersArrowSwitcher-button': {
+            color: 'white',
+            fontSize: '21px',
+        },
+
+        '& .MuiDayCalendar-weekContainer': {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(7, 1fr)',
+            gap: '2px',
+        },
+
+        '& .MuiDayCalendar-weekDayLabel': {
+            fontSize: '10px',
+            color: '#666',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+        },
+
+        '& .MuiPickersDay-root': {
+            fontSize: '13px',
+            width: '30px',
+            height: '30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '50%',
+            margin: 'auto',
+        },
+
+        '& .MuiPickersDay-root.Mui-selected': {
+            backgroundColor: 'white',
+            color: '#1a4b8c',
+            fontWeight: 'bold',
+            border: '2px solid #1a4b8c',
+            width: '30px',
+            height: '30px',
+        },
+
+        '& .MuiPickersDay-today': {
+            position: 'relative',
+            fontWeight: 'bold',
+        },
+
+        '& .MuiPickersDay-today::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: '-2px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '4px',
+            height: '4px',
+            borderRadius: '50%',
+            backgroundColor: '#1a4b8c',
+        },
+
+        '& .MuiPickersDay-root:hover': {
+            backgroundColor: 'rgba(26, 75, 140, 0.1)',
+            borderRadius: '50%',
+        },
+
+        // Year selection styling
+        '& .MuiYearCalendar-root': {
+            display: 'grid',
+            width: "100%",
+            height: "100%",
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '6px',
+            padding: '8px',
+            justifyContent: 'center',
+        },
+
+        '& .MuiPickersYear-yearButton': {
+            fontSize: '14px',
+            padding: '8px',
+            width: '60px',
+            height: '35px',
+            textAlign: 'center',
+        },
+
+        // Month selection styling
+        '& .MuiMonthCalendar-root': {
+            display: 'grid',
+            width: "100%",
+            height: "100%",
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '1px',
+            padding: '4px',
+            justifyContent: 'center',
+            marginTop: 0,
+
+        },
+
+        '& .MuiPickersMonth-monthButton': {
+            fontSize: '14px',
+            padding: '8px',
+            width: '70px',
+            height: '35px',
+            textAlign: 'center',
+        },
+
+        '& .MuiPopover-paper': {
+            minHeight: 'auto',
+            maxHeight: '400px',
+            overflow: 'hidden', // Ensures no scrollbar appears
+        },
+    };
 
     return (
         <>
 
             <div style={{ backgroundColor: '#F4F6F8' }} className="flex flex-1 w-full h-[100%]">
                 {/* Sales Filter Panel - Always visible */}
-                <div className="w-80 bg-white shadow-md p-4 border-r border-gray-200 z-10 w-[25%] flex flex-col h-[100%]">
-                    <div className="flex justify-between items-center mb-4 border-b pb-2 bg-white sticky top-0 z-50">
-                        <h2 className="text-sm font-semibold">Filter</h2>
-                        <div className="right-0"><CloseIcon1 /></div>
-                    </div>
-                    <div className="overflow-y-auto flex-grow">
-                        <div className="space-y-4 ">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Consider
-                                </label>
-                                <select className="w-[96%] ml-1  border border-gray-300 rounded-lg focus:outline-none  text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8">
-                                    <option>Select option</option>
-                                    <option>Option 1</option>
-                                    <option>Option 2</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Period
-                                </label>
-                                <select className="w-[96%] ml-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400  text-xs h-8">
-                                    <option>Select option</option>
-                                    <option>Option 1</option>
-                                    <option>Option 2</option>
-                                </select>
-                            </div>
-                            <div className="flex gap-2">
-                                <div className="w-1/2">
-                                    <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                        From
-                                    </label>
-                                    <input
-                                        type="date"
-                                        className="w-[90%] border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8"
-                                        placeholder="DD/MM/YYYY"
-                                    />
-                                </div>
-                                <div className="w-1/2">
-                                    <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                        To
-                                    </label>
-                                    <input
-                                        type="date"
-                                        className="w-[96%] border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8"
-                                        placeholder="DD/MM/YYYY"
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="grandTotal"
-                                    className="h-4 w-4 text-blue-600 border-gray-300 rounded accent-[#1b2c4a] outline-none"
+
+                
+                    <Box sx={{
+                        width: '27%',
+                        bgcolor: 'white',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        p: 2,
+                        borderRight: '1px solid rgb(229, 231, 235)',
+                        zIndex: 10,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%'
+                    }}>
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            mb: 2,
+                            borderBottom: '1px solid rgb(229, 231, 235)',
+                            pb: 1,
+                            bgcolor: 'white',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 50,
+
+
+                        }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '14px' }}>
+                                Filter
+                            </Typography>
+                            <Box sx={{ right: 0 }}>
+                                <IconButton size="small" >
+                                    <CloseIcon1 fontSize="small" />
+                                </IconButton>
+                            </Box>
+                        </Box>
+
+                        <Box sx={{ overflowY: 'auto', flexGrow: 1 }}>
+                            <Stack spacing={2}>
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Consider</InputLabel>
+                                    <FormControl fullWidth size="small" variant="outlined" >
+                                        <Select
+                                            displayEmpty
+                                            defaultValue=""
+
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                                }
+                                                return selected;
+                                            }}
+                                        >
+                                            <MenuItem value="">Select option</MenuItem>
+                                            <MenuItem value="option1">Option 1</MenuItem>
+                                            <MenuItem value="option2">Option 2</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Period</InputLabel>
+                                    <FormControl fullWidth size="small" variant="outlined">
+                                        <Select
+                                            displayEmpty
+                                            defaultValue=""
+                                            input={<OutlinedInput sx={selectStyles} />}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                                }
+                                                return selected;
+                                            }}
+                                        >
+                                            <MenuItem value="">Select option</MenuItem>
+                                            <MenuItem value="option1">Option 1</MenuItem>
+                                            <MenuItem value="option2">Option 2</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+
+
+
+                                <Box sx={{ display: 'flex' }}>
+                                    <Box sx={{ width: '50%', }}>
+                                        <InputLabel sx={labelStyles}>From</InputLabel>
+                                        <TextField
+                                            type="text"
+                                            variant="outlined"
+                                            size="small"
+                                            placeholder="DD/MM/YYYY"
+                                            value={fromDate ? fromDate.format('DD/MM/YYYY') : ''}
+                                            InputProps={{
+                                                sx: inputStyles,
+                                                endAdornment: (
+                                                    <IconButton size="small" onClick={handleFromCalendarOpen} sx={{ marginRight: -2 }}>
+                                                        <img src={calandericon} alt="calander" width={20} height={20} />
+                                                    </IconButton>
+                                                )
+                                            }}
+                                            sx={{ marginRight: 0, width: '90%' }}
+                                            InputLabelProps={{ shrink: true }}
+                                        />
+                                        <Popover
+                                            open={fromCalendarOpen}
+                                            anchorEl={fromCalendarAnchor}
+                                            onClose={handleFromCalendarClose}
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'left',
+                                            }}
+                                            transformOrigin={{
+                                                vertical: 'top',
+                                                horizontal: 'left',
+                                            }}
+                                        >
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateCalendar
+                                                    referenceDate={dayjs('2022-04-17')}
+                                                    views={['year', 'month', 'day']}
+                                                    value={fromDate}
+                                                    onChange={handleFromDateChange}
+                                                    sx={calendarStyle}
+                                                />
+                                            </LocalizationProvider>
+                                        </Popover>
+                                    </Box>
+                                    <Box sx={{ width: '50%' }}>
+                                        <InputLabel sx={labelStyles}>To</InputLabel>
+                                        <TextField
+                                            type="text"
+                                            variant="outlined"
+                                            size="small"
+                                            placeholder="DD/MM/YYYY"
+                                            value={toDate ? toDate.format('DD/MM/YYYY') : ''}
+                                            InputProps={{
+                                                sx: inputStyles,
+                                                endAdornment: (
+                                                    <IconButton size="small" onClick={handleToCalendarOpen}>
+                                                        <img src={calandericon} alt="calander" width={20} height={20} />
+                                                    </IconButton>
+                                                )
+                                            }}
+                                            sx={{ width: '96%' }}
+                                            InputLabelProps={{ shrink: true }}
+                                        />
+                                        <Popover
+                                            open={toCalendarOpen}
+                                            anchorEl={toCalendarAnchor}
+                                            onClose={handleToCalendarClose}
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'left',
+                                            }}
+                                            transformOrigin={{
+                                                vertical: 'top',
+                                                horizontal: 'left',
+                                            }}
+                                        >
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateCalendar
+                                                    referenceDate={dayjs('2022-04-17')}
+                                                    views={['year', 'month', 'day']}
+                                                    value={toDate}
+                                                    onChange={handleToDateChange}
+                                                    sx={calendarStyle}
+                                                />
+                                            </LocalizationProvider>
+                                        </Popover>
+                                    </Box>
+                                </Box>
+
+
+
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            id="grandTotal"
+                                            sx={checkboxStyles}
+                                        />
+                                    }
+                                    label={
+                                        <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
+                                            Descending order for grandtotal
+                                        </Typography>
+                                    }
+                                    sx={{ margin: 0 }}
                                 />
-                                <label htmlFor="grandTotal" className="text-xs text-gray-700"> {/* Text 12px */}
-                                    Descending order for grandtotal
-                                </label>
-                            </div>
-                            <Divider sx={{ mb: 2, flexGrow: 1 }} />
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Sales For
-                                </label>
-                                <select className="w-[96%] ml-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8">
-                                    <option>Select option</option>
-                                    <option>Option 1</option>
-                                    <option>Option 2</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Output In
-                                </label>
-                                <select className="w-[96%] ml-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8">
-                                    <option>Select option</option>
-                                    <option>Option 1</option>
-                                    <option>Option 2</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Data Clause
-                                </label>
-                                <select className="w-[96%] ml-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8">
-                                    <option>Select option</option>
-                                    <option>Option 1</option>
-                                    <option>Option 2</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Having Clause
-                                </label>
-                                <div className="flex items-center gap-2">
-                                    <select className="flex-grow ml-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8">
-                                        <option>Select option</option>
-                                        <option>Option 1</option>
-                                        <option>Option 2</option>
-                                    </select>
-                                    <input
+
+                                <Divider sx={{ mb: 1, mt: 1 }} />
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Sales For</InputLabel>
+                                    <FormControl fullWidth size="small" variant="outlined">
+                                        <Select
+                                            displayEmpty
+                                            defaultValue=""
+                                            input={<OutlinedInput sx={selectStyles} />}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                                }
+                                                return selected;
+                                            }}
+                                        >
+                                            <MenuItem value="">Select option</MenuItem>
+                                            <MenuItem value="option1">Option 1</MenuItem>
+                                            <MenuItem value="option2">Option 2</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Output In</InputLabel>
+                                    <FormControl fullWidth size="small" variant="outlined">
+                                        <Select
+                                            displayEmpty
+                                            defaultValue=""
+                                            input={<OutlinedInput sx={selectStyles} />}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                                }
+                                                return selected;
+                                            }}
+                                        >
+                                            <MenuItem value="">Select option</MenuItem>
+                                            <MenuItem value="option1">Option 1</MenuItem>
+                                            <MenuItem value="option2">Option 2</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Data Clause</InputLabel>
+                                    <FormControl fullWidth size="small" variant="outlined">
+                                        <Select
+                                            displayEmpty
+                                            defaultValue=""
+                                            input={<OutlinedInput sx={selectStyles} />}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                                }
+                                                return selected;
+                                            }}
+                                        >
+                                            <MenuItem value="">Select option</MenuItem>
+                                            <MenuItem value="option1">Option 1</MenuItem>
+                                            <MenuItem value="option2">Option 2</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Having Clause</InputLabel>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <FormControl variant="outlined" size="small" sx={{ flexGrow: 1 }}>
+                                            <Select
+                                                displayEmpty
+                                                defaultValue=""
+                                                input={<OutlinedInput sx={selectStyles} />}
+                                                sx={{ ml: 0.5, borderRadius: 2, height: 35, width: 140 }}
+                                                renderValue={(selected) => {
+                                                    if (!selected) {
+                                                        return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                                    }
+                                                    return selected;
+                                                }}
+                                            >
+                                                <MenuItem value="">Select option</MenuItem>
+                                                <MenuItem value="option1">Option 1</MenuItem>
+                                                <MenuItem value="option2">Option 2</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                        <TextField
+                                            type="number"
+                                            placeholder="1000"
+                                            variant="outlined"
+                                            size="small"
+                                            InputProps={{ sx: inputStyles }}
+                                            sx={{ width: '30%', height: 35, mr: 0.5 }}
+
+                                        />
+                                    </Box>
+                                </Box>
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Top</InputLabel>
+                                    <TextField
                                         type="number"
                                         placeholder="1000"
-                                        className="mr-1 border p-1 border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8 w-24"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Top
-                                </label>
-                                <input
-                                    type="number"
-                                    placeholder="1000"
-                                    className="w-[96%] ml-1 p-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Transfer
-                                </label>
-                                <select className="w-[96%] ml-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8">
-                                    <option>Select option</option>
-                                    <option>Option 1</option>
-                                    <option>Option 2</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Active
-                                </label>
-                                <select className="w-[96%] ml-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8">
-                                    <option>Select option</option>
-                                    <option>Option 1</option>
-                                    <option>Option 2</option>
-                                </select>
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <input
-                                        type="checkbox"
-                                        id="Sales Additional Details"
-                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded accent-[#1b2c4a] outline-none"
-                                    />
-                                    <label htmlFor="includeValidation" className="text-xs text-gray-700"> {/* Text 12px */}
-                                        Sales Additional Details
-                                    </label>
-                                </div>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <input
-                                        type="checkbox"
-                                        id="includeValidation"
-                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded accent-[#1b2c4a] outline-none"
-                                    />
-                                    <label htmlFor="includeValidation" className="text-xs text-gray-700"> {/* Text 12px */}
-                                        Include Validation
-                                    </label>
-                                </div>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <input
-                                        type="checkbox"
-                                        id="includePromotion"
-                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded accent-[#1b2c4a] outline-none"
-                                    />
-                                    <label htmlFor="includePromotion" className="text-xs text-gray-700"> {/* Text 12px */}
-                                        Include Promotion
-                                    </label>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1"> {/* Text 12px */}
-                                    Criteria
-                                </label>
-                                <select
-                                    className="w-[96%] ml-1 border border-gray-300 rounded-lg focus:outline-none text-[#909090] focus:ring-1 focus:ring-blue-400 text-xs h-8"
-                                    value={criteria}
-                                    onChange={handleCriteriaChange}
-                                >
-                                    <option>Select Filter</option>
-                                    <option>Account</option>
-                                    <option>Business Unit</option>
-                                    <option>City</option>
-                                    <option>Company</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                    {/* Text 12px */}
-                                    Value
-                                </label>
-                                {criteria === "City" ? (
-                                    <TextField
-                                        select
-                                        fullWidth
                                         variant="outlined"
                                         size="small"
-                                        value={value}
-                                        onChange={(e) => setValue(e.target.value)}
-                                        sx={{
-                                            width: "97%",
-                                            ml: 1,
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: "8px",
-                                                fontSize: "12px",
-                                            },
-                                        }}
-                                    >
-                                        <MenuItem value="">Select value</MenuItem>
-                                        <MenuItem value="Malwarehiva">Malwarehiva</MenuItem>
-                                        <MenuItem value="Other City">Other City</MenuItem>
-                                    </TextField>
-                                ) : (
-                                    <TextField
-                                        type="text"
-                                        placeholder="$0, Search Value"
-                                        fullWidth
-                                        variant="outlined"
-                                        size="small"
-                                        value={value}
-                                        onChange={(e) => setValue(e.target.value)}
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: "8px",
-                                                fontSize: "12px",
-                                            },
-                                        }}
+                                        InputProps={{ sx: inputStyles }}
+                                        sx={{ ml: 0.5, width: '96%' }}
                                     />
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                </Box>
 
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Transfer</InputLabel>
+                                    <FormControl fullWidth size="small" variant="outlined">
+                                        <Select
+                                            displayEmpty
+                                            defaultValue=""
+                                            input={<OutlinedInput sx={selectStyles} />}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                                }
+                                                return selected;
+                                            }}
+
+                                        >
+                                            <MenuItem value="">Select option</MenuItem>
+                                            <MenuItem value="option1">Option 1</MenuItem>
+                                            <MenuItem value="option2">Option 2</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Active</InputLabel>
+                                    <FormControl fullWidth size="small" variant="outlined">
+                                        <Select
+                                            displayEmpty
+                                            defaultValue=""
+                                            input={<OutlinedInput sx={selectStyles} />}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                                }
+                                                return selected;
+                                            }}
+
+                                        >
+                                            <MenuItem value="">Select option</MenuItem>
+                                            <MenuItem value="option1">Option 1</MenuItem>
+                                            <MenuItem value="option2">Option 2</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+                                <Divider sx={{ width: "100%" }} />
+
+                                <Box>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                id="salesAdditionalDetails"
+                                                sx={checkboxStyles}
+                                            />
+                                        }
+                                        label={
+                                            <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
+                                                Sales Additional Details
+                                            </Typography>
+                                        }
+                                        sx={{ margin: 0, mb: 2, mr: 2 }}
+                                    />
+
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                id="includeValidation"
+                                                sx={checkboxStyles}
+                                            />
+                                        }
+                                        label={
+                                            <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
+                                                Include Validation
+                                            </Typography>
+                                        }
+                                        sx={{ margin: 0, mb: 2, mr: 2 }}
+                                    />
+
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                id="includePromotion"
+                                                sx={checkboxStyles}
+                                            />
+                                        }
+                                        label={
+                                            <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
+                                                Include Promotion
+                                            </Typography>
+                                        }
+                                        sx={{ margin: 0, mb: 2, mr: 2 }}
+                                    />
+                                </Box>
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Criteria</InputLabel>
+                                    <FormControl fullWidth size="small" variant="outlined">
+                                        <Select
+                                            value={criteria}
+                                            onChange={handleCriteriaChange}
+                                            displayEmpty
+                                            input={<OutlinedInput sx={selectStyles} />}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select Filter</span>;
+                                                }
+                                                return selected;
+                                            }}
+                                        >
+                                            <MenuItem value="">Select Filter</MenuItem>
+                                            <MenuItem value="Account">Account</MenuItem>
+                                            <MenuItem value="Business Unit">Business Unit</MenuItem>
+                                            <MenuItem value="City">City</MenuItem>
+                                            <MenuItem value="Company">Company</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+
+                                <Box>
+                                    <InputLabel sx={labelStyles}>Value</InputLabel>
+                                    {criteria === "City" ? (
+                                        <FormControl fullWidth size="small" variant="outlined">
+                                            <Select
+                                                value={value}
+                                                onChange={(e) => setValue(e.target.value)}
+                                                displayEmpty
+                                                input={<OutlinedInput sx={selectStyles} />}
+                                                sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            >
+                                                <MenuItem value="">Select value</MenuItem>
+                                                <MenuItem value="Malwarehiva">Malwarehiva</MenuItem>
+                                                <MenuItem value="Other City">Other City</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    ) : (
+                                        <TextField
+                                            type="text"
+                                            placeholder="$0, Search Value"
+                                            variant="outlined"
+                                            size="small"
+                                            value={value}
+                                            onChange={(e) => setValue(e.target.value)}
+                                            InputProps={{ sx: inputStyles }}
+                                            fullWidth
+                                        />
+                                    )}
+                                </Box>
+                            </Stack>
+                        </Box>
+                    </Box>
+                
 
                 {/* Drag and Drop Component */}
                 <div style={{ backgroundColor: '#F4F6F8' }} className="flex flex-1 w-full h-[100%]">
                     {/* Drag and Drop Component */}
-                    <div className="w-[75%] px-14" style={{ height: "100%", width:"120%" }}>
+                    <div className="w-[75%] px-14" style={{ height: "100%", width: "120%" }}>
                         <DragDropContext onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
                             <Box
                                 sx={{
@@ -527,9 +1146,102 @@ function SalesAnalysis() {
                                                 </Typography>
                                                 {rows.length > 0 &&
                                                     (<Box sx={{ display: "flex", flexDirection: "row" }}>
-                                                        <img src={SigmaIcon} alt="SigmaIcon" width={24} height={24} />
-                                                        <img src={UpDownArrawIcon} alt="UpDownArrawIcon" width={24} height={24} />
-                                                        <img src={FilterIcon} alt="FilterIcon" width={24} height={24} />
+                                                        <Tooltip
+                                                            title={
+                                                                <Box
+                                                                    sx={{
+                                                                        backgroundColor: "#121212",
+                                                                        height: "auto",
+                                                                        overflow: "auto",
+
+                                                                    }}
+                                                                >
+                                                                    <Typography
+
+                                                                        sx={{ fontSize: "12px", color: "#fff" }}
+                                                                    >
+                                                                        {getSubTotalTooltipContent()}
+                                                                    </Typography>
+                                                                </Box>
+                                                            }
+                                                            arrow
+                                                            PopperProps={{
+                                                                sx: {
+                                                                    "& .MuiTooltip-tooltip": {
+                                                                        backgroundColor: "#121212",
+                                                                        color: "text.primary",
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Box component="span" onClick={handleSubtotalIconClick}>
+                                                                <img src={SigmaIcon} alt="SigmaIcon" width={24} height={24} style={{ cursor: 'pointer' }} />
+                                                            </Box>
+                                                        </Tooltip>
+                                                        <Tooltip
+                                                            title={
+                                                                <Box
+                                                                    sx={{
+                                                                        backgroundColor: "#121212",
+                                                                        height: "auto",
+                                                                        overflow: "auto",
+
+                                                                    }}
+                                                                >
+                                                                    <Typography
+
+                                                                        sx={{ fontSize: "12px", color: "#fff" }}
+                                                                    >
+                                                                        {getOrderByTooltipContent()}
+                                                                    </Typography>
+                                                                </Box>
+                                                            }
+                                                            arrow
+                                                            PopperProps={{
+                                                                sx: {
+                                                                    "& .MuiTooltip-tooltip": {
+                                                                        backgroundColor: "#121212",
+                                                                        color: "text.primary",
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Box component="span" onClick={handleOrderByIconClick}>
+                                                                <img src={UpDownArrawIcon} alt="UpDownArrawIcon" width={24} height={24} style={{ cursor: 'pointer' }} />
+                                                            </Box>
+                                                        </Tooltip>
+                                                        <Tooltip
+                                                            title={
+                                                                <Box
+                                                                    sx={{
+                                                                        backgroundColor: "#121212",
+                                                                        height: "auto",
+                                                                        overflow: "auto",
+
+                                                                    }}
+                                                                >
+                                                                    <Typography
+
+                                                                        sx={{ fontSize: "12px", color: "#fff" }}
+                                                                    >
+                                                                        {getFilterTooltipContent()}
+                                                                    </Typography>
+                                                                </Box>
+                                                            }
+                                                            arrow
+                                                            PopperProps={{
+                                                                sx: {
+                                                                    "& .MuiTooltip-tooltip": {
+                                                                        backgroundColor: "#121212",
+                                                                        color: "text.primary",
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Box component="span">
+                                                                <img src={FilterIcon} alt="FilterIcon" width={24} height={24} />
+                                                            </Box>
+                                                        </Tooltip>
                                                     </Box>)}
                                             </Box>
                                             <Typography variant="body2" color="text.secondary">
@@ -556,7 +1268,130 @@ function SalesAnalysis() {
                                         </Box>
                                     </Paper>
 
+                                    {/* Subtotal box popover */}
+
+                                    <Popover
+                                        open={subtotalPanelOpen}
+                                        anchorEl={subtotalAnchorEl}
+                                        onClose={handleCloseSubtotalPanel}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'right',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                    >
+                                        <Paper sx={{
+                                            width: 250,
+                                            p: 2,
+                                            border: '1px solid #e0e0e0',
+                                            borderRadius: 2,
+                                            boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)'
+                                        }}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                                <Typography variant="subtitle1" fontWeight="bold">Subtotal</Typography>
+                                                <CloseIcon1
+                                                    fontSize="small"
+                                                    onClick={handleCloseSubtotalPanel}
+                                                    sx={{ cursor: 'pointer' }}
+                                                />
+                                            </Box>
+                                            {Object.keys(subTotalChecked)
+                                                .filter(key => subTotalChecked[key])
+                                                .map((item) => (
+                                                    <Box
+                                                        key={item}
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            p: 1,
+                                                            mb: 1,
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: 6,
+                                                        }}
+                                                    >
+                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                            <img src={DragIndicatorIcon} alt="DragIndicatorIcon" width={20} height={20} />
+                                                            <Typography sx={{ ml: 1 }}>{item}</Typography>
+                                                        </Box>
+                                                        <Box
+                                                            component="span"
+                                                            onClick={() => handleRemoveSubtotal(item)}
+                                                            sx={{ cursor: 'pointer' }}
+                                                        >
+                                                            <img src={MinusCloseIcon} alt="MinusCloseIcon" width={20} height={20} />
+                                                        </Box>
+                                                    </Box>
+                                                ))}
+                                        </Paper>
+                                    </Popover>
+
+                                    {/* Order by box Popover */}
+
+                                    <Popover
+                                        open={orderByPanelOpen}
+                                        anchorEl={orderByAnchorEl}
+                                        onClose={handleCloseOrderByPanel}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'right',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                    >
+                                        <Paper sx={{
+                                            width: 250,
+                                            p: 2,
+                                            border: '1px solid #e0e0e0',
+                                            borderRadius: 2,
+                                            boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)'
+                                        }}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                                <Typography variant="subtitle1" fontWeight="bold">Order By</Typography>
+                                                <CloseIcon1
+                                                    fontSize="small"
+                                                    onClick={handleCloseOrderByPanel}
+                                                    sx={{ cursor: 'pointer' }}
+                                                />
+                                            </Box>
+                                            {Object.keys(orderByChecked)
+                                                .filter(key => orderByChecked[key])
+                                                .map((item) => (
+                                                    <Box
+                                                        key={item}
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            p: 1,
+                                                            mb: 1,
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: 6,
+                                                        }}
+                                                    >
+                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                            <img src={DragIndicatorIcon} alt="DragIndicatorIcon" width={20} height={20} />
+                                                            <Typography sx={{ ml: 1 }}>{item}</Typography>
+                                                        </Box>
+                                                        <Box
+                                                            component="span"
+                                                            onClick={() => handleRemoveOrderBy(item)}
+                                                            sx={{ cursor: 'pointer' }}
+                                                        >
+                                                            <img src={MinusCloseIcon} alt="MinusCloseIcon" width={20} height={20} />
+                                                        </Box>
+                                                    </Box>
+                                                ))}
+                                        </Paper>
+                                    </Popover>
+
                                     {/* Lower box - Rows Drop Area */}
+
                                     <Droppable droppableId="rows" isDropDisabled={false}>
                                         {(provided, snapshot) => (
                                             <Paper
@@ -597,51 +1432,77 @@ function SalesAnalysis() {
                                                     </Box>
                                                 )}
                                                 <Box sx={{ width: "100%" }}>
-                                                    {rows.map((item, index) => (
-                                                        <Paper
-                                                            key={item}
-                                                            elevation={0}
-                                                            sx={{
-                                                                width: "100%",
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                justifyContent: "space-between",
-                                                                paddingLeft: 1,
-                                                                paddingRight: 1,
-                                                                paddingTop: 1,
-                                                                paddingBottom: 1,
-                                                                "&:hover": {
-                                                                    backgroundColor: "rgba(0, 0, 0, 0.04)",
-                                                                },
-                                                            }}
-                                                        >
-                                                            <img src={DragIndicatorIcon} alt="DragIndicatorIcon" width={24} height={24}
-                                                            />
-                                                            <Typography sx={{
-                                                                paddingLeft: 2,
-                                                                paddingRight: 1,
-                                                                border: '1px solid #ccc',
-                                                                borderRadius: 4,
-                                                                width: '100%',
-                                                            }}>{item}</Typography>
-                                                            <img style={{ marginLeft: '5px', marginRight: '5px' }} src={CloseIcon} alt="CloseIcon" width={20} height={20}
-                                                                onClick={() => removeItem(item, "rows")}
-                                                            />
-                                                            <img
-                                                                src={EditIcon}
-                                                                alt="EditIcon"
-                                                                width={20}
-                                                                height={20}
-                                                                onClick={(event) => handleEditClick(event, item)}
-                                                                style={{ cursor: 'pointer' }}
-                                                            />
-                                                        </Paper>
-                                                    ))}
+                                                    {rows.map((item, index) => {
+                                                        // Check if this item has either orderBy or subtotal checked
+                                                        const isEitherChecked = orderByChecked[item] || subTotalChecked[item];
+
+                                                        return (
+                                                            <Paper
+                                                                key={item}
+                                                                elevation={0}
+                                                                sx={{
+                                                                    width: "100%",
+                                                                    display: "flex",
+                                                                    alignItems: "center",
+                                                                    justifyContent: "space-between",
+                                                                    paddingLeft: 1,
+                                                                    paddingRight: 1,
+                                                                    paddingTop: 1,
+                                                                    paddingBottom: 1,
+                                                                    "&:hover": {
+                                                                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <img src={DragIndicatorIcon} alt="DragIndicatorIcon" width={24} height={24} />
+                                                                <Typography sx={{
+                                                                    paddingLeft: 2,
+                                                                    paddingRight: 1,
+                                                                    border: '1px solid #ccc',
+                                                                    borderRadius: 4,
+                                                                    width: '100%',
+                                                                }}>{item}</Typography>
+                                                                <img
+                                                                    style={{ marginLeft: '5px', marginRight: '5px' }}
+                                                                    src={MinusCloseIcon}
+                                                                    alt="MinusCloseIcon"
+                                                                    width={20}
+                                                                    height={20}
+                                                                    onClick={() => removeItem(item, "rows")}
+                                                                />
+                                                                {(editPopoverAnchorEl && editingItem === item) ? (
+                                                                    <img src={CloseIcon} alt="CloseIcon" width={20} height={20} onClick={handleEditClose} style={{ cursor: 'pointer' }} />
+                                                                ) : (
+                                                                    (orderByChecked[item] || subTotalChecked[item]) ? (
+                                                                        <img
+                                                                            src={EditIcon}
+                                                                            alt="EditIcon"
+                                                                            width={20}
+                                                                            height={20}
+                                                                            onClick={(event) => handleEditClick(event, item)}
+                                                                            style={{ cursor: 'pointer' }}
+                                                                        />
+                                                                    ) : (
+                                                                        <img
+                                                                            src={DocsAddIcon}
+                                                                            alt="DocsAddIcon"
+                                                                            width={20}
+                                                                            height={20}
+                                                                            onClick={(event) => handleEditClick(event, item)}
+                                                                            style={{ cursor: 'pointer' }}
+                                                                        />
+                                                                    )
+                                                                )}
+                                                            </Paper>
+                                                        );
+                                                    })}
                                                 </Box>
                                                 {provided.placeholder}
                                             </Paper>
                                         )}
                                     </Droppable>
+
+                                    {/* pop over check boxes */}
 
                                     <Popover
                                         open={Boolean(editPopoverAnchorEl)}
@@ -685,11 +1546,14 @@ function SalesAnalysis() {
                                                             marginRight: 0.5,
                                                             '& .MuiSvgIcon-root': {
                                                                 fontSize: 20
+                                                            },
+                                                            '&.Mui-checked': {
+                                                                color: '#1b2c4a' // Change color when checked
                                                             }
                                                         }}
-                                                        checked={orderByChecked[editingItem] || false}
-                                                        onChange={(e) => setOrderByChecked({
-                                                            ...orderByChecked,
+                                                        checked={tempOrderByChecked[editingItem] || false}
+                                                        onChange={(e) => setTempOrderByChecked({
+                                                            ...tempOrderByChecked,
                                                             [editingItem]: e.target.checked
                                                         })}
                                                     />
@@ -713,11 +1577,14 @@ function SalesAnalysis() {
                                                             marginRight: 0.5,
                                                             '& .MuiSvgIcon-root': {
                                                                 fontSize: 20
+                                                            },
+                                                            '&.Mui-checked': {
+                                                                color: '#1b2c4a' // Change color when checked
                                                             }
                                                         }}
-                                                        checked={subTotalChecked[editingItem] || false}
-                                                        onChange={(e) => setSubTotalChecked({
-                                                            ...subTotalChecked,
+                                                        checked={tempSubTotalChecked[editingItem] || false}
+                                                        onChange={(e) => setTempSubTotalChecked({
+                                                            ...tempSubTotalChecked,
                                                             [editingItem]: e.target.checked
                                                         })}
                                                     />
@@ -748,6 +1615,8 @@ function SalesAnalysis() {
                                         </Box>
                                     </Popover>
 
+
+
                                 </Box>
 
                                 {/* Columns Column */}
@@ -761,6 +1630,7 @@ function SalesAnalysis() {
                                     }}
                                 >
                                     {/* Upper box - Columns Header */}
+
                                     <Paper
                                         elevation={2}
                                         sx={{
@@ -804,6 +1674,7 @@ function SalesAnalysis() {
                                     </Paper>
 
                                     {/* Lower box - Columns Drop Area */}
+
                                     <Droppable droppableId="columns" isDropDisabled={false}>
                                         {(provided, snapshot) => (
                                             <Paper
@@ -874,7 +1745,7 @@ function SalesAnalysis() {
                                                             width: '100%',
                                                         }}>{item}</Typography>
 
-                                                        <img style={{ marginLeft: '5px' }} src={CloseIcon} alt="CloseIcon" width={20} height={20}
+                                                        <img style={{ marginLeft: '5px' }} src={MinusCloseIcon} alt="MinusCloseIcon" width={20} height={20}
                                                             onClick={() => removeItem(item, "columns")}
                                                         />
                                                     </Paper>
@@ -888,7 +1759,6 @@ function SalesAnalysis() {
                         </DragDropContext>
                     </div>
                 </div>
-
 
                 {/* bottom nav bar */}
                 <div className="flex items-center justify-end gap-5 fixed bottom-0 right-0 bg-white w-full p-2 border-b border-gray-200">
@@ -905,7 +1775,7 @@ function SalesAnalysis() {
                             color: "#1b2c4a",
                         }}
                     >
-                        Reset selection
+                        Reset
                     </Button>
                     <Button
                         variant="contained"

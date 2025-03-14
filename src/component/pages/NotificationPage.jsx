@@ -6,7 +6,8 @@ import TabPanel from "@mui/lab/TabPanel";
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import FiberManualRecordRoundedIcon from '@mui/icons-material/FiberManualRecordRounded';
 import CardActionArea from '@mui/material/CardActionArea';
-
+import { toggleNotify } from '../Slice/GeneralStateSlice';
+import { useDispatch } from "react-redux";
 
 const notifications = {
     read: [
@@ -30,12 +31,15 @@ const generalNotifications = [...notifications.read, ...notifications.unread];
 export default function NotificationPage() {
     const [value, setValue] = React.useState("1");
 
+    const dispatch = useDispatch();
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
     const handleCancel = () => {
         console.log("Cancel button click");
+        dispatch(toggleNotify());   
     }
     return (
         <Box sx={{ width: 310, height: 430, border: "1px solid #D1D5DB", borderRadius: "8px", background: "#fffff", p: 0, boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', }}>

@@ -51,6 +51,10 @@ import SearchIcon from "../icons/manage_search_24dp_1F1F1F_FILL0_wght400_GRAD0_o
 import UploadIcon from "../icons/upload_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import LogoutIcon from '@mui/icons-material/Logout';
 
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
+import { setScreenPage, clearScreenPage, } from '../component/Slice/GeneralStateSlice';
+
 const drawerWidth = 220;
 
 const openedMixin = (theme) => ({
@@ -163,13 +167,49 @@ export default function Dashboard() {
     const [openModal, setOpenModal] = useState(false);
     const [openSubMenu, setOpenSubMenu] = React.useState({});
     const [mainPageOpenComp, setMainPageOpenComp] = React.useState(false);
-    const handleSubMenuToggle = (text) => {
-        setOpenSubMenu((prev) => ({ ...prev, [text]: !prev[text] }));
+    const [selectedItem, setSelectedItem] = React.useState(null);
+    const [selectedChild, setSelectedChild] = React.useState(null);
+
+    const handleItemClick = (itemText) => {
+        setSelectedItem(itemText);
+
+        // Check if the menu item has children
+        if (menuItems.find(item => item.text === itemText)?.children) {
+            handleSubMenuToggle(itemText);
+
+            // If submenu is being closed, reset selectedChild
+            if (openSubMenu[itemText]) {
+                setSelectedChild(null);
+            }
+        }
+    };
+
+
+    const handleChildClick = (subItem) => {
+        setSelectedChild(subItem);
+        console.log("clicked" + subItem);
+
+
+        dispatch(setScreenPage({ mainScreenItem: subItem.replace(" ", "_") })) //pass selected item without space
+        navigate('/mainScreenPage');
 
     };
-    const subItemClick = () => {
-        setMainPageOpenComp(true);
-    }
+
+
+    const handleSubMenuToggle = (text) => {
+        setOpenSubMenu((prev) => ({ ...prev, [text]: !prev[text] }));
+    };
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const notifyStatus = useSelector((state) => state.generalState.notificationStatus);
+
+
+    React.useEffect(() => {
+        setNotificationAnchorEl(false);
+    }, [notifyStatus]);
+
+
     const handleModalOpen = () => {
         console.log("button clicked");
         setOpenModal(true);
@@ -192,7 +232,7 @@ export default function Dashboard() {
 
     // Handle notification close
     const handleNotificationClose = () => {
-        setNotificationAnchorEl(null);
+        setNotificationAnchorEl(false);
     };
 
     // Menu items to match your original layout
@@ -205,10 +245,10 @@ export default function Dashboard() {
                 { text: 'Linking' },
                 { text: 'Target' },
                 { text: 'Others' },
-                { text: 'Report' },
+                { text: 'Reports' },
                 { text: 'Settings' },
                 { text: 'Transactions' },
-                { text: 'NOC ststus' },
+                { text: 'NOC status' },
             ] },
         { text: 'Quick Links', icon: <img src={QuickLinksIcon} alt="Quick Links" width={24} height={24} /> },
         { text: 'Favorite', icon: <img src={StarBorderIcon} alt="Favorite" width={24} height={24} /> },
@@ -333,26 +373,31 @@ export default function Dashboard() {
                         overflow: 'hidden' // Hide overflow on the container
                     }}
                 >
-                    <Box sx={{overflowY: "auto"}}>
                     <List>
                         {menuItems.map((item) => (
                             <React.Fragment key={item.text}>
-                                <ListItem disablePadding sx={{ display: 'block' }}>
+                                <ListItem disablePadding sx={{ display: "block" }}>
                                     <ListItemButton
-                                        onClick={() => item.children && handleSubMenuToggle(item.text)}
+                                        onClick={() => handleItemClick(item.text)}
                                         sx={{
-                                            minHeight: 40,
-                                            justifyContent: open ? 'initial' : 'center',
-                                            px: 2.5,
+                                            minHeight: 25,
+                                            justifyContent: open ? "initial" : "center",
+                                            px: 2,
                                             py: 0.2,
+                                            color: openSubMenu[item.text] ? "#01429B" : "inherit",
+                                            backgroundColor: openSubMenu[item.text] ? "#EBF2FF" : "inherit",
+                                            borderRadius: "12px",
+                                            mx: openSubMenu[item.text] ? 0.5 : null,
+                                            pl: openSubMenu[item.text] ? 2.2 : 2.5,
                                         }}
                                     >
                                         {item.icon && (
                                             <ListItemIcon
                                                 sx={{
                                                     minWidth: 0,
-                                                    mr: open ? 2 : 'auto',
-                                                    justifyContent: 'center',
+                                                    mr: open ? 2 : "auto",
+                                                    justifyContent: "center",
+                                                    filter: openSubMenu[item.text] ? "invert(17%) sepia(98%) saturate(2083%) hue-rotate(206deg) brightness(99%) contrast(92%)" : "none",
                                                 }}
                                             >
                                                 {item.icon}
@@ -361,39 +406,76 @@ export default function Dashboard() {
                                         <ListItemText
                                             primary={item.text}
                                             sx={{ opacity: open ? 1 : 0 }}
-                                            primaryTypographyProps={{ fontSize: '14px' }}
+                                            primaryTypographyProps={{
+                                                fontSize: "14px",
+                                                fontWeight: openSubMenu[item.text] ? 600 : 400,
+                                            }}
                                         />
-                                        {open && item.children && (openSubMenu[item.text] ? <ExpandLess /> : <ExpandMore />)}
+                                        {open && item.children && (
+                                            <div style={{ color: openSubMenu[item.text] ? "#1976d2" : "inherit" }}>
+                                                {openSubMenu[item.text] ? <ExpandLess /> : <ExpandMore />}
+                                            </div>
+                                        )}
                                     </ListItemButton>
                                 </ListItem>
                                 {item.children && (
                                     <Collapse in={openSubMenu[item.text]} timeout="auto" unmountOnExit>
-                                        {open && <List component="div" disablePadding>
-                                            {item.children.map((subItem) => (
-                                                <ListItemButton
-                                                    onClick={() => subItemClick()}
-                                                    key={subItem.text}
-                                                    sx={{ bgcolor: '#F4F6F8', pl: 4, py: 0.2 }}
-                                                >
-                                                    <ListItemText
-                                                        primary={subItem.text}
-                                                        primaryTypographyProps={{ fontSize: '12px' }}
-                                                    />
-                                                    {/* Only show the child icon when the drawer is open */}
-                                                    {open && (
-                                                        <ListItemIcon sx={{ minWidth: 22, color: 'gray' }}>
-                                                            <ChevronRightIcon fontSize="small" />
-                                                        </ListItemIcon>
-                                                    )}
-                                                </ListItemButton>
-                                            ))}
-                                        </List>}
+                                        {open && (
+                                            <List component="div" disablePadding>
+                                                {item.children.map((subItem, index) => (
+                                                    <ListItemButton
+                                                        onClick={() => handleChildClick(subItem.text)}
+                                                        key={subItem.text}
+                                                        sx={{
+                                                            bgcolor: "#F4F6F8",
+                                                            py: 0.2,
+                                                            pl: 6,
+                                                            position: "relative",
+                                                            "&::before": {
+                                                                content: '""',
+                                                                position: "absolute",
+                                                                left: 24,
+                                                                top: "0%",
+                                                                height: index === item.children.length - 1 ? "50%" : "100%",// Avoid extra line on first item
+                                                                width: "2px",
+                                                                backgroundColor: "#C4C4C4", // Line color
+                                                            },
+                                                            "&::after": {
+                                                                content: '""',
+                                                                position: "absolute",
+                                                                left: 22,
+                                                                top: "50%",
+                                                                transform: "translateY(-50%)",
+                                                                width: 8,
+                                                                height: 8,
+                                                                borderRadius: "50%",
+                                                                backgroundColor:
+                                                                    selectedChild === subItem.text ? "#01429B" : "#999",
+                                                                transition: "background-color 0.3s ease-in-out", // Smooth transition effect
+                                                            },
+                                                            "&:hover::after": {
+                                                                backgroundColor: "#01429B", // Change dot color on hover
+                                                            },
+                                                        }}
+                                                    >
+                                                        <ListItemText
+                                                            primary={subItem.text}
+                                                            primaryTypographyProps={{ fontSize: "12px" }}
+                                                        />
+                                                        {open && (
+                                                            <ListItemIcon sx={{ minWidth: 22, color: "gray" }}>
+                                                                <ChevronRightIcon fontSize="small" />
+                                                            </ListItemIcon>
+                                                        )}
+                                                    </ListItemButton>
+                                                ))}
+                                            </List>
+                                        )}
                                     </Collapse>
                                 )}
                             </React.Fragment>
                         ))}
                     </List>
-                    </Box>
             </Box>
 
                 
@@ -424,7 +506,7 @@ export default function Dashboard() {
             <Box component="main" sx={{ flexGrow: 1, p: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>
                 <DrawerHeader />
 
-                {/* Breadcrumbs with Upload button */}
+                 {/*Breadcrumbs with Upload button */}
                 <Box sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
