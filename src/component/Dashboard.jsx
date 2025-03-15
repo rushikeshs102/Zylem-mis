@@ -35,10 +35,8 @@ import CenteredModal from "../component/pages/CenteredModal";
 
 
 
-// Import logo
-import logo from "../assets/logo.png";
-
 //new icons
+import logo from "../assets/logo.png";
 import DashboardIcon from "../icons/grid_view_25dp_CCCCCC_FILL0_wght400_GRAD0_opsz24.svg";
 import MenuOpenIcon from "../icons/menu_open_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import QuickLinksIcon from "../icons/dataset_linked_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
@@ -48,12 +46,12 @@ import NotificationsIcon from "../icons/notifications_unread_24dp_1F1F1F_FILL0_w
 import SettingsIcon from "../icons/settings_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import ChevronLeftIcon from "../icons/left_panel_close_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import SearchIcon from "../icons/manage_search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg"
-import UploadIcon from "../icons/upload_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import LogoutIcon from '@mui/icons-material/Logout';
 
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { setScreenPage, clearScreenPage, } from '../component/Slice/GeneralStateSlice';
+import AdminImage from "../assets/image.png"
 
 const drawerWidth = 220;
 
@@ -164,11 +162,16 @@ export default function Dashboard() {
     const [open, setOpen] = React.useState(true);
     const [notificationAnchorEl, setNotificationAnchorEl] = React.useState(null);
     const notificationOpen = Boolean(notificationAnchorEl);
-    const [openModal, setOpenModal] = useState(false);
     const [openSubMenu, setOpenSubMenu] = React.useState({});
-    const [mainPageOpenComp, setMainPageOpenComp] = React.useState(false);
+
     const [selectedItem, setSelectedItem] = React.useState(null);
     const [selectedChild, setSelectedChild] = React.useState(null);
+
+    const [navPopupOpen, setNavPopupOpen] = useState(false); // State for navigation popup
+
+    const handleNavPopupClose = () => {
+        setNavPopupOpen(false);
+    };
 
     const handleItemClick = (itemText) => {
         setSelectedItem(itemText);
@@ -186,12 +189,12 @@ export default function Dashboard() {
 
 
     const handleChildClick = (subItem) => {
-        setSelectedChild(subItem);
+
         console.log("clicked" + subItem);
 
 
         dispatch(setScreenPage({ mainScreenItem: subItem.replace(" ", "_") })) //pass selected item without space
-        navigate('/mainScreenPage');
+        setNavPopupOpen(true);
 
     };
 
@@ -209,15 +212,6 @@ export default function Dashboard() {
         setNotificationAnchorEl(false);
     }, [notifyStatus]);
 
-
-    const handleModalOpen = () => {
-        console.log("button clicked");
-        setOpenModal(true);
-    };
-
-    const handleModalClose = () => {
-        setOpenModal(false);
-    };
     const handleDrawerOpen = () => {
         setOpen(true);
     };
@@ -239,7 +233,7 @@ export default function Dashboard() {
     const menuItems = [
         { text: 'Dashboard', icon: <img src={DashboardIcon} alt="Dashboard" width={24} height={24} /> },
         {
-            text: 'Menu', icon: <img src={MenuOpenIcon} alt="Menu" width={24} height={24} /> ,children: [
+            text: 'Menu', icon: <img src={MenuOpenIcon} alt="Menu" width={24} height={24} />, children: [
                 { text: 'Master' },
                 { text: 'Allied Master' },
                 { text: 'Linking' },
@@ -249,7 +243,8 @@ export default function Dashboard() {
                 { text: 'Settings' },
                 { text: 'Transactions' },
                 { text: 'NOC status' },
-            ] },
+            ]
+        },
         { text: 'Quick Links', icon: <img src={QuickLinksIcon} alt="Quick Links" width={24} height={24} /> },
         { text: 'Favorite', icon: <img src={StarBorderIcon} alt="Favorite" width={24} height={24} /> },
         { text: 'Scheduler', icon: <img src={AccessTimeIcon} alt="Scheduler" width={24} height={24} /> },
@@ -291,7 +286,7 @@ export default function Dashboard() {
                             <img src={SettingsIcon} alt="SettingsIcon" width={24} height={24} />
                         </IconButton>
                         <Divider orientation="vertical" flexItem sx={{ mx: 2, height: 62 }} />
-                        <Avatar src="https://randomuser.me/api/portraits/men/45.jpg" sx={{ width: 42, height: 42, borderRadius: '4px', objectFit: 'cover' }} />
+                        <Avatar src={AdminImage} sx={{ width: 42, height: 42, borderRadius: '4px', objectFit: 'cover' }} />
                         <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 500 }}>
                             Admin
                         </Typography>
@@ -325,7 +320,7 @@ export default function Dashboard() {
                 <NotificationPage />
             </Popover>
 
-            <CenteredModal open={openModal} handleClose={handleModalClose} />
+
 
             <Drawer variant="permanent" open={open}>
                 <DrawerHeader>
@@ -345,7 +340,7 @@ export default function Dashboard() {
                 <Divider />
 
                 {open && (
-                    <Box sx={{ px: 2, py: 2, }}>
+                    <Box sx={{ px: 2, paddingTop: 1, width: "110%" }}>
                         <Search sx={{ borderRadius: 5, }}>
                             <SearchIconWrapper >
                                 <img src={SearchIcon} alt="NotificationsIcon" width={24} height={24} />
@@ -476,11 +471,11 @@ export default function Dashboard() {
                             </React.Fragment>
                         ))}
                     </List>
-            </Box>
+                </Box>
 
-                
-                
-                <Box sx={{ mt: 'auto', mb: 2, px: 2 }}>
+
+                <Divider sx={{ width: '100%', backgroundColor: "#D1D5DB", px: 0 }} />
+                <Box sx={{ mt: 'auto', px: 2 }}>
                     <ListItemButton
                         sx={{
                             minHeight: 48,
@@ -506,47 +501,17 @@ export default function Dashboard() {
             <Box component="main" sx={{ flexGrow: 1, p: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>
                 <DrawerHeader />
 
-                 {/*Breadcrumbs with Upload button */}
-                <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    p: 1,
-                    borderBottom: 1,
-                    borderColor: 'divider'
-                }}>
-                    <Breadcrumbs aria-label="breadcrumb">
-                        <Link underline="hover" color="inherit" href="#">
-                            Report
-                        </Link>
-                        <Link underline="hover" color="inherit" href="#">
-                            Sales
-                        </Link>
-                        <Typography color="text.primary" fontWeight="medium">Sales Analysis</Typography>
-                    </Breadcrumbs>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        startIcon={<img src={UploadIcon} alt="NotificationsIcon" width={24} height={24} />}
-                        sx={{
-                            fontSize: "14px",
-                            textTransform: "none",
-                            fontWeight: "bold",
-                            color: "#1b2c4a",
-                            backgroundColor: "none",
-                            padding: "5px 20px",
-                            borderRadius: "10px",
-                            border: "1px solid #1b2c4a",
-                        }}
-                        onClick={handleModalOpen}
-                    >
-                        Upload
-                    </Button>
-                </Box>
+
 
                 {/* Main content area */}
-                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                <Box sx={{ flexGrow: 1, overflow: 'auto', position: 'relative' }}>
+                    {navPopupOpen && <MainScreenPage
+
+                        onClose={handleNavPopupClose}
+                        styled={{ zIndex: 1400, position: 'absolute' }}
+                    />}
                     <Outlet />
+
                 </Box>
             </Box>
         </Box>

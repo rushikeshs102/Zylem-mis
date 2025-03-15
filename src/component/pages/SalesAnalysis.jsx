@@ -35,6 +35,7 @@ import { IconButton } from "@mui/material";
 import CenteredModal from '../pages/CenteredModal';
 import UploadIcon from "../../icons/upload_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import FilterListIcon from '@mui/icons-material/FilterList';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 function SalesAnalysis() {
     const initialItems = ["Account",
@@ -550,77 +551,324 @@ function SalesAnalysis() {
     return (
         <>
 
-            <div style={{ backgroundColor: '#F4F6F8' }} className="flex flex-1 w-full h-[100%]">
+
+            <CenteredModal open={openModal} handleClose={handleModalClose} />
+            {/* Breadcrumbs*/}
+                <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                p: 1,
+                borderBottom: 1,
+                borderColor: 'divider'
+            }}>
+                <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="large" />}>
+                    <Link underline="hover" color="inherit" href="#">
+                        Report
+                    </Link>
+                    <Link underline="hover" color="inherit" href="#">
+                        Sales
+                    </Link>
+                    <Typography color="text.primary" fontWeight="medium">
+                        Sales Analysis
+                    </Typography>
+                </Breadcrumbs>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<img src={UploadIcon} alt="NotificationsIcon" width={24} height={24} className="upload-icon" />}
+                    sx={{
+                        fontSize: "14px",
+                        textTransform: "none",
+                        fontWeight: "bold",
+                        color: "#1b2c4a",
+                        backgroundColor: "none",
+                        padding: "5px 20px",
+                        borderRadius: "10px",
+                        border: "1px solid #1b2c4a",
+                        "&:hover": {
+                            backgroundColor: "#01429B",
+                            color: "#ffffff",
+                            borderColor: "#01429B",
+                            "& .upload-icon": {
+                                filter: "brightness(0) invert(1)", // Turns the icon white
+                            },
+                        },
+                    }}
+                    onClick={handleModalOpen}
+                >
+                    Upload
+                </Button>
+            </Box>
+            <div style={{ backgroundColor: '#F4F6F8' }} className="flex flex-1 w-full h-[90%]">
                 {/* Sales Filter Panel - Always visible */}
 
-                
+                <Box sx={{
+                    width: '27%',
+                    bgcolor: 'white',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    p: 2,
+                    borderRight: '1px solid rgb(229, 231, 235)',
+                    zIndex: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                }}>
                     <Box sx={{
-                        width: '27%',
-                        bgcolor: 'white',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                        p: 2,
-                        borderRight: '1px solid rgb(229, 231, 235)',
-                        zIndex: 10,
                         display: 'flex',
-                        flexDirection: 'column',
-                        height: '100%'
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        mb: 2,
+                        borderBottom: '1px solid rgb(229, 231, 235)',
+                        pb: 1,
+                        bgcolor: 'white',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 50,
+
+
                     }}>
-                        <Box sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            mb: 2,
-                            borderBottom: '1px solid rgb(229, 231, 235)',
-                            pb: 1,
-                            bgcolor: 'white',
-                            position: 'sticky',
-                            top: 0,
-                            zIndex: 50,
-
-
-                        }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '14px' }}>
-                                Filter
-                            </Typography>
-                            <Box sx={{ right: 0 }}>
-                                <IconButton size="small" >
-                                    <CloseIcon1 fontSize="small" />
-                                </IconButton>
-                            </Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '14px' }}>
+                            Filter
+                        </Typography>
+                        <Box sx={{ right: 0 }}>
+                            <IconButton size="small" >
+                                <CloseIcon1 fontSize="small" />
+                            </IconButton>
                         </Box>
+                    </Box>
 
-                        <Box sx={{ overflowY: 'auto', flexGrow: 1 }}>
-                            <Stack spacing={2}>
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Consider</InputLabel>
-                                    <FormControl fullWidth size="small" variant="outlined" >
-                                        <Select
-                                            displayEmpty
-                                            defaultValue=""
+                    <Box sx={{ overflowY: 'auto', flexGrow: 1 }}>
+                        <Stack spacing={2}>
+                            <Box>
+                                <InputLabel sx={labelStyles}>Consider</InputLabel>
+                                <FormControl fullWidth size="small" variant="outlined" >
+                                    <Select
+                                        displayEmpty
+                                        defaultValue=""
 
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
-                                            renderValue={(selected) => {
-                                                if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
-                                                }
-                                                return selected;
-                                            }}
-                                        >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
-                                        </Select>
-                                    </FormControl>
+                                        sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                            }
+                                            return selected;
+                                        }}
+                                    >
+                                        <MenuItem value="">Select option</MenuItem>
+                                        <MenuItem value="option1">Option 1</MenuItem>
+                                        <MenuItem value="option2">Option 2</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Period</InputLabel>
+                                <FormControl fullWidth size="small" variant="outlined">
+                                    <Select
+                                        displayEmpty
+                                        defaultValue=""
+                                        input={<OutlinedInput sx={selectStyles} />}
+                                        sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                            }
+                                            return selected;
+                                        }}
+                                    >
+                                        <MenuItem value="">Select option</MenuItem>
+                                        <MenuItem value="option1">Option 1</MenuItem>
+                                        <MenuItem value="option2">Option 2</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+
+
+
+                            <Box sx={{ display: 'flex' }}>
+                                <Box sx={{ width: '50%', }}>
+                                    <InputLabel sx={labelStyles}>From</InputLabel>
+                                    <TextField
+                                        type="text"
+                                        variant="outlined"
+                                        size="small"
+                                        placeholder="DD/MM/YYYY"
+                                        value={fromDate ? fromDate.format('DD/MM/YYYY') : ''}
+                                        InputProps={{
+                                            sx: inputStyles,
+                                            endAdornment: (
+                                                <IconButton size="small" onClick={handleFromCalendarOpen} sx={{ marginRight: -2 }}>
+                                                    <img src={calandericon} alt="calander" width={20} height={20} />
+                                                </IconButton>
+                                            )
+                                        }}
+                                        sx={{ marginRight: 0, width: '90%' }}
+                                        InputLabelProps={{ shrink: true }}
+                                    />
+                                    <Popover
+                                        open={fromCalendarOpen}
+                                        anchorEl={fromCalendarAnchor}
+                                        onClose={handleFromCalendarClose}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'left',
+                                        }}
+                                    >
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DateCalendar
+                                                referenceDate={dayjs('2022-04-17')}
+                                                views={['year', 'month', 'day']}
+                                                value={fromDate}
+                                                onChange={handleFromDateChange}
+                                                sx={calendarStyle}
+                                            />
+                                        </LocalizationProvider>
+                                    </Popover>
                                 </Box>
+                                <Box sx={{ width: '50%' }}>
+                                    <InputLabel sx={labelStyles}>To</InputLabel>
+                                    <TextField
+                                        type="text"
+                                        variant="outlined"
+                                        size="small"
+                                        placeholder="DD/MM/YYYY"
+                                        value={toDate ? toDate.format('DD/MM/YYYY') : ''}
+                                        InputProps={{
+                                            sx: inputStyles,
+                                            endAdornment: (
+                                                <IconButton size="small" onClick={handleToCalendarOpen}>
+                                                    <img src={calandericon} alt="calander" width={20} height={20} />
+                                                </IconButton>
+                                            )
+                                        }}
+                                        sx={{ width: '96%' }}
+                                        InputLabelProps={{ shrink: true }}
+                                    />
+                                    <Popover
+                                        open={toCalendarOpen}
+                                        anchorEl={toCalendarAnchor}
+                                        onClose={handleToCalendarClose}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'left',
+                                        }}
+                                    >
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DateCalendar
+                                                referenceDate={dayjs('2022-04-17')}
+                                                views={['year', 'month', 'day']}
+                                                value={toDate}
+                                                onChange={handleToDateChange}
+                                                sx={calendarStyle}
+                                            />
+                                        </LocalizationProvider>
+                                    </Popover>
+                                </Box>
+                            </Box>
 
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Period</InputLabel>
-                                    <FormControl fullWidth size="small" variant="outlined">
+
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        id="grandTotal"
+                                        sx={checkboxStyles}
+                                    />
+                                }
+                                label={
+                                    <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
+                                        Descending order for grandtotal
+                                    </Typography>
+                                }
+                                sx={{ margin: 0 }}
+                            />
+
+                            <Divider sx={{ mb: 1, mt: 1 }} />
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Sales For</InputLabel>
+                                <FormControl fullWidth size="small" variant="outlined">
+                                    <Select
+                                        displayEmpty
+                                        defaultValue=""
+                                        input={<OutlinedInput sx={selectStyles} />}
+                                        sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                            }
+                                            return selected;
+                                        }}
+                                    >
+                                        <MenuItem value="">Select option</MenuItem>
+                                        <MenuItem value="option1">Option 1</MenuItem>
+                                        <MenuItem value="option2">Option 2</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Output In</InputLabel>
+                                <FormControl fullWidth size="small" variant="outlined">
+                                    <Select
+                                        displayEmpty
+                                        defaultValue=""
+                                        input={<OutlinedInput sx={selectStyles} />}
+                                        sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                            }
+                                            return selected;
+                                        }}
+                                    >
+                                        <MenuItem value="">Select option</MenuItem>
+                                        <MenuItem value="option1">Option 1</MenuItem>
+                                        <MenuItem value="option2">Option 2</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Data Clause</InputLabel>
+                                <FormControl fullWidth size="small" variant="outlined">
+                                    <Select
+                                        displayEmpty
+                                        defaultValue=""
+                                        input={<OutlinedInput sx={selectStyles} />}
+                                        sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                            }
+                                            return selected;
+                                        }}
+                                    >
+                                        <MenuItem value="">Select option</MenuItem>
+                                        <MenuItem value="option1">Option 1</MenuItem>
+                                        <MenuItem value="option2">Option 2</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Having Clause</InputLabel>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <FormControl variant="outlined" size="small" sx={{ flexGrow: 1 }}>
                                         <Select
                                             displayEmpty
                                             defaultValue=""
                                             input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{ ml: 0.5, borderRadius: 2, height: 35, width: 140 }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
                                                     return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
@@ -633,381 +881,181 @@ function SalesAnalysis() {
                                             <MenuItem value="option2">Option 2</MenuItem>
                                         </Select>
                                     </FormControl>
-                                </Box>
-
-
-
-                                <Box sx={{ display: 'flex' }}>
-                                    <Box sx={{ width: '50%', }}>
-                                        <InputLabel sx={labelStyles}>From</InputLabel>
-                                        <TextField
-                                            type="text"
-                                            variant="outlined"
-                                            size="small"
-                                            placeholder="DD/MM/YYYY"
-                                            value={fromDate ? fromDate.format('DD/MM/YYYY') : ''}
-                                            InputProps={{
-                                                sx: inputStyles,
-                                                endAdornment: (
-                                                    <IconButton size="small" onClick={handleFromCalendarOpen} sx={{ marginRight: -2 }}>
-                                                        <img src={calandericon} alt="calander" width={20} height={20} />
-                                                    </IconButton>
-                                                )
-                                            }}
-                                            sx={{ marginRight: 0, width: '90%' }}
-                                            InputLabelProps={{ shrink: true }}
-                                        />
-                                        <Popover
-                                            open={fromCalendarOpen}
-                                            anchorEl={fromCalendarAnchor}
-                                            onClose={handleFromCalendarClose}
-                                            anchorOrigin={{
-                                                vertical: 'bottom',
-                                                horizontal: 'left',
-                                            }}
-                                            transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'left',
-                                            }}
-                                        >
-                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                <DateCalendar
-                                                    referenceDate={dayjs('2022-04-17')}
-                                                    views={['year', 'month', 'day']}
-                                                    value={fromDate}
-                                                    onChange={handleFromDateChange}
-                                                    sx={calendarStyle}
-                                                />
-                                            </LocalizationProvider>
-                                        </Popover>
-                                    </Box>
-                                    <Box sx={{ width: '50%' }}>
-                                        <InputLabel sx={labelStyles}>To</InputLabel>
-                                        <TextField
-                                            type="text"
-                                            variant="outlined"
-                                            size="small"
-                                            placeholder="DD/MM/YYYY"
-                                            value={toDate ? toDate.format('DD/MM/YYYY') : ''}
-                                            InputProps={{
-                                                sx: inputStyles,
-                                                endAdornment: (
-                                                    <IconButton size="small" onClick={handleToCalendarOpen}>
-                                                        <img src={calandericon} alt="calander" width={20} height={20} />
-                                                    </IconButton>
-                                                )
-                                            }}
-                                            sx={{ width: '96%' }}
-                                            InputLabelProps={{ shrink: true }}
-                                        />
-                                        <Popover
-                                            open={toCalendarOpen}
-                                            anchorEl={toCalendarAnchor}
-                                            onClose={handleToCalendarClose}
-                                            anchorOrigin={{
-                                                vertical: 'bottom',
-                                                horizontal: 'left',
-                                            }}
-                                            transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'left',
-                                            }}
-                                        >
-                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                <DateCalendar
-                                                    referenceDate={dayjs('2022-04-17')}
-                                                    views={['year', 'month', 'day']}
-                                                    value={toDate}
-                                                    onChange={handleToDateChange}
-                                                    sx={calendarStyle}
-                                                />
-                                            </LocalizationProvider>
-                                        </Popover>
-                                    </Box>
-                                </Box>
-
-
-
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            id="grandTotal"
-                                            sx={checkboxStyles}
-                                        />
-                                    }
-                                    label={
-                                        <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
-                                            Descending order for grandtotal
-                                        </Typography>
-                                    }
-                                    sx={{ margin: 0 }}
-                                />
-
-                                <Divider sx={{ mb: 1, mt: 1 }} />
-
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Sales For</InputLabel>
-                                    <FormControl fullWidth size="small" variant="outlined">
-                                        <Select
-                                            displayEmpty
-                                            defaultValue=""
-                                            input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
-                                            renderValue={(selected) => {
-                                                if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
-                                                }
-                                                return selected;
-                                            }}
-                                        >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Output In</InputLabel>
-                                    <FormControl fullWidth size="small" variant="outlined">
-                                        <Select
-                                            displayEmpty
-                                            defaultValue=""
-                                            input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
-                                            renderValue={(selected) => {
-                                                if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
-                                                }
-                                                return selected;
-                                            }}
-                                        >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Data Clause</InputLabel>
-                                    <FormControl fullWidth size="small" variant="outlined">
-                                        <Select
-                                            displayEmpty
-                                            defaultValue=""
-                                            input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
-                                            renderValue={(selected) => {
-                                                if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
-                                                }
-                                                return selected;
-                                            }}
-                                        >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Having Clause</InputLabel>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <FormControl variant="outlined" size="small" sx={{ flexGrow: 1 }}>
-                                            <Select
-                                                displayEmpty
-                                                defaultValue=""
-                                                input={<OutlinedInput sx={selectStyles} />}
-                                                sx={{ ml: 0.5, borderRadius: 2, height: 35, width: 140 }}
-                                                renderValue={(selected) => {
-                                                    if (!selected) {
-                                                        return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
-                                                    }
-                                                    return selected;
-                                                }}
-                                            >
-                                                <MenuItem value="">Select option</MenuItem>
-                                                <MenuItem value="option1">Option 1</MenuItem>
-                                                <MenuItem value="option2">Option 2</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                        <TextField
-                                            type="number"
-                                            placeholder="1000"
-                                            variant="outlined"
-                                            size="small"
-                                            InputProps={{ sx: inputStyles }}
-                                            sx={{ width: '30%', height: 35, mr: 0.5 }}
-
-                                        />
-                                    </Box>
-                                </Box>
-
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Top</InputLabel>
                                     <TextField
                                         type="number"
                                         placeholder="1000"
                                         variant="outlined"
                                         size="small"
                                         InputProps={{ sx: inputStyles }}
-                                        sx={{ ml: 0.5, width: '96%' }}
+                                        sx={{ width: '30%', height: 35, mr: 0.5 }}
+
                                     />
                                 </Box>
+                            </Box>
 
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Transfer</InputLabel>
+                            <Box>
+                                <InputLabel sx={labelStyles}>Top</InputLabel>
+                                <TextField
+                                    type="number"
+                                    placeholder="1000"
+                                    variant="outlined"
+                                    size="small"
+                                    InputProps={{ sx: inputStyles }}
+                                    sx={{ ml: 0.5, width: '96%' }}
+                                />
+                            </Box>
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Transfer</InputLabel>
+                                <FormControl fullWidth size="small" variant="outlined">
+                                    <Select
+                                        displayEmpty
+                                        defaultValue=""
+                                        input={<OutlinedInput sx={selectStyles} />}
+                                        sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                            }
+                                            return selected;
+                                        }}
+
+                                    >
+                                        <MenuItem value="">Select option</MenuItem>
+                                        <MenuItem value="option1">Option 1</MenuItem>
+                                        <MenuItem value="option2">Option 2</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Active</InputLabel>
+                                <FormControl fullWidth size="small" variant="outlined">
+                                    <Select
+                                        displayEmpty
+                                        defaultValue=""
+                                        input={<OutlinedInput sx={selectStyles} />}
+                                        sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+                                            }
+                                            return selected;
+                                        }}
+
+                                    >
+                                        <MenuItem value="">Select option</MenuItem>
+                                        <MenuItem value="option1">Option 1</MenuItem>
+                                        <MenuItem value="option2">Option 2</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                            <Divider sx={{ width: "100%" }} />
+
+                            <Box>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            id="salesAdditionalDetails"
+                                            sx={checkboxStyles}
+                                        />
+                                    }
+                                    label={
+                                        <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
+                                            Sales Additional Details
+                                        </Typography>
+                                    }
+                                    sx={{ margin: 0, mb: 2, mr: 2 }}
+                                />
+
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            id="includeValidation"
+                                            sx={checkboxStyles}
+                                        />
+                                    }
+                                    label={
+                                        <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
+                                            Include Validation
+                                        </Typography>
+                                    }
+                                    sx={{ margin: 0, mb: 2, mr: 2 }}
+                                />
+
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            id="includePromotion"
+                                            sx={checkboxStyles}
+                                        />
+                                    }
+                                    label={
+                                        <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
+                                            Include Promotion
+                                        </Typography>
+                                    }
+                                    sx={{ margin: 0, mb: 2, mr: 2 }}
+                                />
+                            </Box>
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Criteria</InputLabel>
+                                <FormControl fullWidth size="small" variant="outlined">
+                                    <Select
+                                        value={criteria}
+                                        onChange={handleCriteriaChange}
+                                        displayEmpty
+                                        input={<OutlinedInput sx={selectStyles} />}
+                                        sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return <span style={{ color: '#909090', fontSize: "12px" }}>Select Filter</span>;
+                                            }
+                                            return selected;
+                                        }}
+                                    >
+                                        <MenuItem value="">Select Filter</MenuItem>
+                                        <MenuItem value="Account">Account</MenuItem>
+                                        <MenuItem value="Business Unit">Business Unit</MenuItem>
+                                        <MenuItem value="City">City</MenuItem>
+                                        <MenuItem value="Company">Company</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+
+                            <Box>
+                                <InputLabel sx={labelStyles}>Value</InputLabel>
+                                {criteria === "City" ? (
                                     <FormControl fullWidth size="small" variant="outlined">
                                         <Select
-                                            displayEmpty
-                                            defaultValue=""
-                                            input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
-                                            renderValue={(selected) => {
-                                                if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
-                                                }
-                                                return selected;
-                                            }}
-
-                                        >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Active</InputLabel>
-                                    <FormControl fullWidth size="small" variant="outlined">
-                                        <Select
-                                            displayEmpty
-                                            defaultValue=""
-                                            input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
-                                            renderValue={(selected) => {
-                                                if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
-                                                }
-                                                return selected;
-                                            }}
-
-                                        >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-                                <Divider sx={{ width: "100%" }} />
-
-                                <Box>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                id="salesAdditionalDetails"
-                                                sx={checkboxStyles}
-                                            />
-                                        }
-                                        label={
-                                            <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
-                                                Sales Additional Details
-                                            </Typography>
-                                        }
-                                        sx={{ margin: 0, mb: 2, mr: 2 }}
-                                    />
-
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                id="includeValidation"
-                                                sx={checkboxStyles}
-                                            />
-                                        }
-                                        label={
-                                            <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
-                                                Include Validation
-                                            </Typography>
-                                        }
-                                        sx={{ margin: 0, mb: 2, mr: 2 }}
-                                    />
-
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                id="includePromotion"
-                                                sx={checkboxStyles}
-                                            />
-                                        }
-                                        label={
-                                            <Typography sx={{ fontSize: '12px', color: 'rgb(55, 65, 81)' }}>
-                                                Include Promotion
-                                            </Typography>
-                                        }
-                                        sx={{ margin: 0, mb: 2, mr: 2 }}
-                                    />
-                                </Box>
-
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Criteria</InputLabel>
-                                    <FormControl fullWidth size="small" variant="outlined">
-                                        <Select
-                                            value={criteria}
-                                            onChange={handleCriteriaChange}
-                                            displayEmpty
-                                            input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
-                                            renderValue={(selected) => {
-                                                if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select Filter</span>;
-                                                }
-                                                return selected;
-                                            }}
-                                        >
-                                            <MenuItem value="">Select Filter</MenuItem>
-                                            <MenuItem value="Account">Account</MenuItem>
-                                            <MenuItem value="Business Unit">Business Unit</MenuItem>
-                                            <MenuItem value="City">City</MenuItem>
-                                            <MenuItem value="Company">Company</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Value</InputLabel>
-                                    {criteria === "City" ? (
-                                        <FormControl fullWidth size="small" variant="outlined">
-                                            <Select
-                                                value={value}
-                                                onChange={(e) => setValue(e.target.value)}
-                                                displayEmpty
-                                                input={<OutlinedInput sx={selectStyles} />}
-                                                sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
-                                            >
-                                                <MenuItem value="">Select value</MenuItem>
-                                                <MenuItem value="Malwarehiva">Malwarehiva</MenuItem>
-                                                <MenuItem value="Other City">Other City</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    ) : (
-                                        <TextField
-                                            type="text"
-                                            placeholder="$0, Search Value"
-                                            variant="outlined"
-                                            size="small"
                                             value={value}
                                             onChange={(e) => setValue(e.target.value)}
-                                            InputProps={{ sx: inputStyles }}
-                                            fullWidth
-                                        />
-                                    )}
-                                </Box>
-                            </Stack>
-                        </Box>
+                                            displayEmpty
+                                            input={<OutlinedInput sx={selectStyles} />}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                        >
+                                            <MenuItem value="">Select value</MenuItem>
+                                            <MenuItem value="Malwarehiva">Malwarehiva</MenuItem>
+                                            <MenuItem value="Other City">Other City</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                ) : (
+                                    <TextField
+                                        type="text"
+                                        placeholder="$0, Search Value"
+                                        variant="outlined"
+                                        size="small"
+                                        value={value}
+                                        onChange={(e) => setValue(e.target.value)}
+                                        InputProps={{ sx: inputStyles }}
+                                        fullWidth
+                                    />
+                                )}
+                            </Box>
+                        </Stack>
                     </Box>
-                
+                </Box>
 
                 {/* Drag and Drop Component */}
                 <div style={{ backgroundColor: '#F4F6F8' }} className="flex flex-1 w-full h-[100%]">
@@ -1120,11 +1168,12 @@ function SalesAnalysis() {
                                 {/* Rows Column */}
                                 <Box
                                     sx={{
-                                        width: "37%",
+                                        width: "38%",
                                         display: "flex",
                                         flexDirection: "column",
                                         gap: 2,
                                         mr: 5,
+                                        pr: 0.5,
                                     }}
                                 >
                                     {/* Upper box - Rows Header */}
