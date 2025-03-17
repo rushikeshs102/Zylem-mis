@@ -19,7 +19,7 @@ const notifications = {
         { id: 4, name: "Avi S.", message: "requests permission to edit the scheduler section", time: "9 days ago", avatar: "https://randomuser.me/api/portraits/women/1.jpg", read: false },
         {
             id: 5, name: "Susha L.", message: "requests permission to edit the scheduler section", time: "9 days ago", avatar: "https://randomuser.me/api/portraits/women/2.jpg",
-            read:false
+            read: false
         },
         { id: 6, name: "Robert M.", message: "requests permission to edit the scheduler section", time: "10 days ago", avatar: "https://randomuser.me/api/portraits/men/9.jpg" }
     ]
@@ -39,10 +39,10 @@ export default function NotificationPage() {
 
     const handleCancel = () => {
         console.log("Cancel button click");
-        dispatch(toggleNotify());   
+        dispatch(toggleNotify());
     }
     return (
-        <Box sx={{ width: 310, height: 430, border: "1px solid #D1D5DB", borderRadius: "8px", background: "#fffff", p: 0, boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', }}>
+        <Box sx={{ width: 300, height: 400, border: "1px solid #D1D5DB", borderRadius: "8px", background: "#fffff", p: 0, boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', }}>
             <TabContext value={value}>
                 {/* Tab List */}
                 <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -72,18 +72,17 @@ export default function NotificationPage() {
                                 bottom: 5, // Align it properly with the divider
 
                             },
-                            
                         }}
                     >
-                        <Tab label="General" value="1" sx={{ flexGrow: 1, textTransform: "none", fontSize: "14px", fontWeight: 500, minHeight: "30px", p: 0, "&.Mui-selected": { color: "#374151" } }} />
-                        <Tab label="Read" value="2" sx={{ flexGrow: 1, textTransform: "none", fontSize: "14px", fontWeight: 500, minHeight: "30px", p: 0, "&.Mui-selected": { color: "#374151" } }} />
-                        <Tab label="Unread" value="3" sx={{ flexGrow: 1, textTransform: "none", fontSize: "14px", fontWeight: 500, minHeight: "30px", p: 0, "&.Mui-selected": { color: "#374151" } }} />
+                        <Tab label="General" value="1" sx={{ flexGrow: 1, textTransform: "none", fontSize: "12px", fontWeight: 500, minHeight: "30px", p: 0, "&.Mui-selected": { color: "#374151" } }} />
+                        <Tab label="Read" value="2" sx={{ flexGrow: 1, textTransform: "none", fontSize: "12px", fontWeight: 500, minHeight: "30px", p: 0, "&.Mui-selected": { color: "#374151" } }} />
+                        <Tab label="Unread" value="3" sx={{ flexGrow: 1, textTransform: "none", fontSize: "12px", fontWeight: 500, minHeight: "30px", p: 0, "&.Mui-selected": { color: "#374151" } }} />
                     </TabList>
 
 
                 </Box>
 
-                <Box sx={{ height: 360, overflow: 'auto'}}>
+                <Box sx={{ height: 330, overflow: 'auto' }}>
                     <TabPanel value="1" sx={{ p: 0 }}>
                         <NotificationList data={generalNotifications} />
                     </TabPanel>
@@ -107,24 +106,24 @@ const NotificationList = ({ data }) => {
             {data.map((item, index) => (
                 <React.Fragment key={item.id}>
                     <CardActionArea>
-                    <ListItem alignItems="flex-start" sx={{ px: 1, py: 0.3, backgroundColor: item.read ? "#F4F6F8" : "transparent" }}>
-                        <ListItemAvatar>
-                            <Avatar src={item.avatar} sx={{ width: 35, height: 35 }} />
-                        </ListItemAvatar>
-                        <ListItemText
-                            primary={
-                                <Typography variant="body2" sx={{ fontSize: "12px", color: "#374151" }}>
-                                    <strong>{item.name}</strong>
-                                    <span style={{ color: '#909090' }}> {item.message} </span>
-                                </Typography>
-                            }
-                            secondary={<Typography sx={{ fontSize: "10px", color: "#909090" }}>
-                                <FiberManualRecordRoundedIcon sx={{ fontSize: '8px', paddingRight: '2px', color: '#909090' }} />
-                                {item.time}</Typography>}
-                        />
-                    </ListItem>
+                        <ListItem alignItems="flex-start" sx={{ px: 1, py: 0.3, backgroundColor: item.read ? "#F4F6F8" : "transparent" }}>
+                            <ListItemAvatar>
+                                <Avatar src={item.avatar} sx={{ width: 35, height: 35 }} />
+                            </ListItemAvatar>
+                            <ListItemText
+                                primary={
+                                    <Typography variant="body2" sx={{ fontSize: "12px", color: "#374151" }}>
+                                        <strong>{item.name}</strong>
+                                        <span style={{ color: '#909090' }}> {item.message} </span>
+                                    </Typography>
+                                }
+                                secondary={<Typography sx={{ fontSize: "10px", color: "#909090" }}>
+                                    <FiberManualRecordRoundedIcon sx={{ fontSize: '8px', paddingRight: '2px', color: '#909090' }} />
+                                    {item.time}</Typography>}
+                            />
+                        </ListItem>
                     </CardActionArea>
-                    {index < data.length - 1 && <Divider sx={{ width: "100%", color:'#D1D5DB' }} />}
+                    {index < data.length - 1 && <Divider sx={{ width: "100%", color: '#D1D5DB' }} />}
                 </React.Fragment>
             ))}
         </List>

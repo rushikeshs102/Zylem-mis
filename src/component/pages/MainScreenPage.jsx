@@ -88,7 +88,7 @@ export default function MainScreenPage({ open, onClose }) {
             { id: 4, title: 'Distributor Sales Entry Online' },
             { id: 5, title: 'Sales Additional Details' },
         ],
-        NOC_ststus: [
+        NOC_status: [
             { id: 1, title: 'Pending Actions' },
             { id: 2, title: 'NOC Status' },
             { id: 3, title: 'NOC Details' },
@@ -112,7 +112,7 @@ export default function MainScreenPage({ open, onClose }) {
     const handleSubItemClick = (subItem) => {
         if (subItem == 'Sales Analysis') {
             onClose();
-            navigate("/mainScreenPage/SalesAnalysisPage")
+            navigate("/SalesAnalysisPage")
         }
     };
 

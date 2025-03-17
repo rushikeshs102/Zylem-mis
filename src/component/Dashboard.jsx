@@ -29,9 +29,12 @@ import Popover from '@mui/material/Popover';
 
 import MainScreenPage from "../component/pages/MainScreenPage.jsx"
 import Collapse from '@mui/material/Collapse';
+import {Tooltip} from '@mui/material';
+
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import CenteredModal from "../component/pages/CenteredModal";
+
 
 
 
@@ -43,6 +46,7 @@ import QuickLinksIcon from "../icons/dataset_linked_24dp_000000_FILL0_wght400_GR
 import StarBorderIcon from "../icons/hotel_class_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import AccessTimeIcon from "../icons/alarm_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import NotificationsIcon from "../icons/notifications_unread_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg"
+
 import SettingsIcon from "../icons/settings_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import ChevronLeftIcon from "../icons/left_panel_close_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import SearchIcon from "../icons/manage_search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg"
@@ -50,8 +54,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
-import { setScreenPage, clearScreenPage, } from '../component/Slice/GeneralStateSlice';
-import AdminImage from "../assets/image.png"
+import { setScreenPage, openSideBar, closeSidebar } from '../component/Slice/GeneralStateSlice';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 
 const drawerWidth = 220;
 
@@ -191,10 +195,10 @@ export default function Dashboard() {
     const handleChildClick = (subItem) => {
 
         console.log("clicked" + subItem);
-
-
-        dispatch(setScreenPage({ mainScreenItem: subItem.replace(" ", "_") })) //pass selected item without space
         setNavPopupOpen(true);
+        dispatch(setScreenPage({ mainScreenItem: subItem.replace(" ", "_") })) //pass selected item without space
+        selectedChild(subItem);
+
 
     };
 
@@ -214,10 +218,13 @@ export default function Dashboard() {
 
     const handleDrawerOpen = () => {
         setOpen(true);
+        dispatch(openSideBar());
     };
 
     const handleDrawerClose = () => {
         setOpen(false);
+        setNavPopupOpen(false);
+        dispatch(closeSidebar());
     };
 
     const handleNotificationClick = (event) => {
@@ -271,22 +278,89 @@ export default function Dashboard() {
                         <MenuIcon />
                     </IconButton>
                     <Box sx={{ flexGrow: 1 }} />
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <IconButton
-                            size="large"
-                            color="inherit"
-                            onClick={handleNotificationClick}
-                            aria-describedby="notification-popover"
-                        >
-                            <Badge badgeContent={999} color="error">
-                                <img src={NotificationsIcon} alt="NotificationsIcon" width={24} height={24} />
-                            </Badge>
-                        </IconButton>
-                        <IconButton size="large" color="inherit">
-                            <img src={SettingsIcon} alt="SettingsIcon" width={24} height={24} />
-                        </IconButton>
+                    <Box sx={{ display: 'flex', alignItems: 'center',gap:2 }}>
+                        <Tooltip title={
+                            <Box
+                                sx={{
+                                    backgroundColor: "#121212",
+                                    height: "auto",
+                                    overflow: "auto",
+
+                                }}
+                            >
+                                <Typography
+
+                                    sx={{ fontSize: "12px", color: "#fff" }}
+                                >
+                                    Notification
+                                </Typography>
+                            </Box>
+                        } arrow
+                            PopperProps={{
+                                sx: {
+                                    "& .MuiTooltip-tooltip": {
+                                        backgroundColor: "#121212",
+                                        color: "text.primary",
+                                    },
+                                },
+                            }}>
+                            <IconButton
+                                size="large"
+                                color="inherit"
+                                onClick={handleNotificationClick}
+                                aria-describedby="notification-popover"
+                                sx={{
+                                    height: 32,
+                                    width: 32,
+                                    backgroundColor: "#EBF2FF",
+                                    borderRadius:'8px'
+                                }}
+                            >
+                                <Badge badgeContent={6} color="error" >
+                                    <img src={NotificationsIcon} alt="NotificationsIcon" width={24} height={24} />
+                                </Badge>
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title={
+                            <Box
+                                sx={{
+                                    backgroundColor: "#121212",
+                                    height: "auto",
+                                    overflow: "auto",
+
+                                }}
+                            >
+                                <Typography
+
+                                    sx={{ fontSize: "12px", color: "#fff" }}
+                                >
+                                    Settings
+                                </Typography>
+                            </Box>
+                        } arrow
+                            PopperProps={{
+                                sx: {
+                                    "& .MuiTooltip-tooltip": {
+                                        backgroundColor: "#121212",
+                                        color: "text.primary",
+                                    },
+                                },
+                            }}>
+                        <IconButton size="large" color="inherit"
+                                sx={{
+                                    height: 32,
+                                    width: 32,
+                                    backgroundColor: "#EBF2FF",
+                                    borderRadius: '8px'
+                                }}
+                            >
+                                <SettingsOutlinedIcon width={24} height={24} />
+                            </IconButton>
+                        </Tooltip>
+
                         <Divider orientation="vertical" flexItem sx={{ mx: 2, height: 62 }} />
-                        <Avatar src={AdminImage} sx={{ width: 42, height: 42, borderRadius: '4px', objectFit: 'cover' }} />
+                        <Avatar src="https://randomuser.me/api/portraits/men/5.jpg" sx={{ width: 42, height: 42, borderRadius: '4px', objectFit: 'cover' }} />
                         <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 500 }}>
                             Admin
                         </Typography>
@@ -455,8 +529,17 @@ export default function Dashboard() {
                                                     >
                                                         <ListItemText
                                                             primary={subItem.text}
-                                                            primaryTypographyProps={{ fontSize: "12px" }}
+                                                            primaryTypographyProps={{
+                                                                fontSize: "12px", sx: {
+                                                                    color: selectedChild === subItem.text ? "#01429B" : "#000", // Change text color when selected
+                                                                    transition: "color 0.3s ease-in-out", // Smooth transition
+                                                                    "&:hover": {
+                                                                        color: "#01429B", // Change text color on hover
+                                                                    }
+                                                                } }}
+
                                                         />
+
                                                         {open && (
                                                             <ListItemIcon sx={{ minWidth: 22, color: "gray" }}>
                                                                 <ChevronRightIcon fontSize="small" />
