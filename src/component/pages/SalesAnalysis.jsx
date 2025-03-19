@@ -95,10 +95,36 @@ function SalesAnalysis() {
     const [fromCalendarAnchor, setFromCalendarAnchor] = useState(null);
     const [toCalendarAnchor, setToCalendarAnchor] = useState(null);
     const [isFilterOpen, setIsFilterOpen] = useState(true);
+    const [fromCalendarOpen, setFromCalendarOpen] = useState(false);
+    const [fromView, setFromView] = useState("year");
+    const [toCalendarOpen, setToCalendarOpen] = useState(false);
+    const [toView, setToView] = useState("year");
+         // criteria state
+    const [selectedCriteria, setSelectedCriteria] = useState('');
+    const [searchValue, setSearchValue] = useState('');
+    const [selectedArea, setSelectedArea] = useState('');
 
-    // filter const avlues 
-    const fromCalendarOpen = Boolean(fromCalendarAnchor);
-    const toCalendarOpen = Boolean(toCalendarAnchor);
+
+    // filter const avlues
+    const pharmacies = [
+        'AL-Ameen Pharmcy',
+        'AL-Ameen Pharmcy',
+        'AL-Ameen Pharmcy',
+        'AL-Ameen Pharmcy',
+        'AL-Ameen Pharmcy',
+        'AL-Ameen Pharmcy',
+        'AL-Ameen Pharmcy'
+    ];
+
+    const areas = [
+        'Maharashtra',
+        'Karnataka',
+        'Tamil Nadu',
+        'Gujarat'
+    ];
+
+   // const fromCalendarOpen = Boolean(fromCalendarAnchor);
+   // const toCalendarOpen = Boolean(toCalendarAnchor);
 
 
     // Sidebar state access
@@ -321,35 +347,55 @@ function SalesAnalysis() {
 
     // Filter functions
 
-    const handleCriteriaChange = (e) => {
-        setCriteria(e.target.value);
+    const handleCriteriaChange = (event) => {
+        setSelectedCriteria(event.target.value);
         setValue(""); // Reset value when criteria changes
     };
 
     const handleFromCalendarOpen = (event) => {
         setFromCalendarAnchor(event.currentTarget);
+        setFromCalendarOpen(true);
+        setFromView("year"); // Start with year selection
     };
 
     const handleFromCalendarClose = () => {
-        setFromCalendarAnchor(null);
+        setFromCalendarOpen(false);
     };
 
-    const handleFromDateChange = (date) => {
-        setFromDate(date);
-        handleFromCalendarClose();
+    const handleFromDateChange = (newDate) => {
+        if (fromView === "year") {
+            setFromDate(newDate);
+            setFromView("month"); // Move to month selection
+        } else if (fromView === "month") {
+            setFromDate(newDate);
+            setFromView("day"); // Move to day selection
+        } else {
+            setFromDate(newDate); // Final date selection
+            setFromCalendarOpen(false); // Close calendar after day selection
+        }
     };
 
     const handleToCalendarOpen = (event) => {
         setToCalendarAnchor(event.currentTarget);
+        setToCalendarOpen(true);
+        setToView("year"); // Start with year selection
     };
 
     const handleToCalendarClose = () => {
-        setToCalendarAnchor(null);
+        setToCalendarOpen(false);
     };
 
-    const handleToDateChange = (date) => {
-        setToDate(date);
-        handleToCalendarClose();
+    const handleToDateChange = (newDate) => {
+        if (toView === "year") {
+            setToDate(newDate);
+            setToView("month"); // Move to month selection
+        } else if (toView === "month") {
+            setToDate(newDate);
+            setToView("day"); // Move to day selection
+        } else {
+            setToDate(newDate); // Final date selection
+            setToCalendarOpen(false); // Close calendar after day selection
+        }
     };
 
     const handleOpenFilter = () => {
@@ -359,6 +405,149 @@ function SalesAnalysis() {
     const handleCloseFilter = () => {
         setIsFilterOpen(false);
     };
+
+    //criteria function
+    const renderValueField = () => {
+        if (!selectedCriteria) {
+            return (
+                <TextField
+                    type="text"
+                    variant="outlined"
+                    placeholder="Select values"
+                    fullWidth
+                    sx={{
+                        ...inputStyles,
+                        borderRadius: '10px',
+                        '& .MuiOutlinedInput-root': {
+                            height: '35px',  // Set height to 35px here
+                            borderRadius: '10px',
+                        }
+                    }}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+            );
+        }
+
+
+        switch (selectedCriteria) {
+            case 'Account':
+                return (
+                    <>
+                        <Box sx={{ position: 'relative', width: '100%', mb: 1 }}>
+                            <TextField
+                                type="text"
+                                variant="outlined"
+                                size="small"
+                                placeholder="Search Value"
+                                value={searchValue}
+                                onChange={(e) => setSearchValue(e.target.value)}
+                                InputProps={{
+                                    sx: inputStyles,
+                                    startAdornment: (
+                                        <img src={SearchIcon} alt="SearchIcon" width={30} height={30} />
+                                    )
+                                }}
+                                fullWidth
+                            />
+                        </Box>
+                        <Box sx={{
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: '8px',
+                            bgcolor: 'white'
+                        }}>
+                            {pharmacies.map((pharmacy, index) => (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        p: 0,
+                                        //borderBottom: index < pharmacies.length - 1 ? '1px solid #f0f0f0' : 'none'
+                                    }}
+                                >
+                                    <Checkbox
+                                        size="small"
+                                        sx={{
+                                            color: " #909090", // Default color
+                                            '&.Mui-checked': {
+                                                color: " #1B2C4A" // Change checked color to orange
+                                            }
+                                        }}
+                                    />
+                                    <Typography sx={{ ml: 1, fontSize: '12px', fontWeight: '500' }}>
+                                        {pharmacy}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    </>
+                );
+
+            case 'City':
+                return (
+                    <TextField
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        placeholder="Select value"
+                        fullWidth
+                        sx={{ ...inputStyles, backgroundColor: '#f5f5f5' }}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                );
+
+            case 'Area':
+                return (
+                    <FormControl fullWidth>
+                        <Select
+                            value={selectedArea}
+                            onChange={(e) => setSelectedArea(e.target.value)}
+                            displayEmpty
+                            size="small"
+                            sx={inputStyles}
+                            renderValue={(selected) => {
+                                if (!selected) {
+                                    return <Typography sx={{ color: '#9e9e9e' }}>Select value</Typography>;
+                                }
+                                return selected;
+                            }}
+                        >
+                            {areas.map((area) => (
+                                <MenuItem key={area} value={area}>{area}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                );
+
+            default:
+                return (
+                    <TextField
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        placeholder="Select value"
+                        fullWidth
+                        sx={{
+                            ...inputStyles,
+                            '& .MuiOutlinedInput-root': {
+                                height: '35px',  // Changed from 50px to 35px
+                                borderRadius: '10px',
+                            }
+                        }}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                );
+        }
+    };
+
 
 
 
@@ -897,11 +1086,19 @@ function SalesAnalysis() {
                                             variant="outlined"
                                             size="small"
                                             placeholder="DD/MM/YYYY"
-                                            value={fromDate ? fromDate.format('DD/MM/YYYY') : ''}
-                                            InputProps={{
-                                                sx: inputStyles,
+                                            value={fromDate ? dayjs(fromDate).format("DD/MM/YYYY") : ""} InputProps={{
+                                                sx: {
+                                                    ...inputStyles,
+                                                    color: fromDate ? '#314151' : '#9CA3B7',
+                                                },
                                                 endAdornment: (
-                                                    <IconButton size="small" onClick={handleFromCalendarOpen} sx={{ marginRight: -2 }}>
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={handleFromCalendarOpen}
+                                                        disableRipple
+                                                        disableFocusRipple
+                                                        sx={{ marginRight: -2, background: "none", "&:hover": { background: "none" } }}
+                                                    >
                                                         <img src={calandericon} alt="calander" width={20} height={20} />
                                                     </IconButton>
                                                 )
@@ -924,10 +1121,9 @@ function SalesAnalysis() {
                                         >
                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DateCalendar
-                                                    referenceDate={dayjs('2022-04-17')}
-                                                    views={['year', 'month', 'day']}
                                                     value={fromDate}
                                                     onChange={handleFromDateChange}
+                                                    views={[fromView]} // Dynamically change views
                                                     sx={calendarStyle}
                                                 />
                                             </LocalizationProvider>
@@ -940,9 +1136,12 @@ function SalesAnalysis() {
                                             variant="outlined"
                                             size="small"
                                             placeholder="DD/MM/YYYY"
-                                            value={toDate ? toDate.format('DD/MM/YYYY') : ''}
+                                            value={toDate ? dayjs(toDate).format("DD/MM/YYYY") : ""}
                                             InputProps={{
-                                                sx: inputStyles,
+                                                sx: {
+                                                    ...inputStyles,
+                                                    color: fromDate ? '#314151' : '#9CA3B7',
+                                                },
                                                 endAdornment: (
                                                     <IconButton size="small" onClick={handleToCalendarOpen} sx={{ marginRight: -2 }}>
                                                         <img src={calandericon} alt="calander" width={20} height={20} />
@@ -967,10 +1166,9 @@ function SalesAnalysis() {
                                         >
                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DateCalendar
-                                                    referenceDate={dayjs('2022-04-17')}
-                                                    views={['year', 'month', 'day']}
                                                     value={toDate}
                                                     onChange={handleToDateChange}
+                                                    views={[toView]} // Dynamically change views
                                                     sx={calendarStyle}
                                                 />
                                             </LocalizationProvider>
@@ -1263,70 +1461,145 @@ function SalesAnalysis() {
                                     />
                                 </Box>
 
-                                <Box>
+                                {/*<Box>*/}
+                                {/*    <InputLabel sx={labelStyles}>Criteria</InputLabel>*/}
+                                {/*    <FormControl fullWidth size="small" variant="outlined">*/}
+                                {/*        <Select*/}
+                                {/*            value={criteria}*/}
+                                {/*            onChange={handleCriteriaChange}*/}
+                                {/*            displayEmpty*/}
+                                {/*            input={<OutlinedInput sx={selectStyles} />}*/}
+                                {/*            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)" }}*/}
+                                {/*            renderValue={(selected) => {*/}
+                                {/*                if (!selected) {*/}
+                                {/*                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;*/}
+                                {/*                }*/}
+                                {/*                return selected;*/}
+                                {/*            }}*/}
+                                {/*            MenuProps={{*/}
+                                {/*                PaperProps: {*/}
+                                {/*                    sx: {*/}
+                                {/*                        marginTop: "8px",*/}
+                                {/*                        borderRadius: "8px", // Rounded edges*/}
+                                {/*                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown*/}
+                                {/*                        boxShadow: "none", // Optional: Remove shadow*/}
+                                {/*                    },*/}
+                                {/*                },*/}
+                                {/*            }}*/}
+                                {/*        >*/}
+                                {/*            <MenuItem value="" sx={{ fontSize: "12px" }}>Select Filter</MenuItem>*/}
+                                {/*            <MenuItem value="Account" sx={{ fontSize: "12px" }}>Account</MenuItem>*/}
+                                {/*            <MenuItem value="Business Unit" sx={{ fontSize: "12px" }}>Business Unit</MenuItem>*/}
+                                {/*            <MenuItem value="City" sx={{ fontSize: "12px" }}>City</MenuItem>*/}
+                                {/*            <MenuItem value="Company" sx={{ fontSize: "12px" }}>Company</MenuItem>*/}
+                                {/*        </Select>*/}
+                                {/*    </FormControl>*/}
+                                {/*</Box>*/}
+
+                                <Box sx={{ mb: 2 }}>
                                     <InputLabel sx={labelStyles}>Criteria</InputLabel>
-                                    <FormControl fullWidth size="small" variant="outlined">
+                                    <FormControl fullWidth>
                                         <Select
-                                            value={criteria}
+
+                                            value={selectedCriteria}
+
                                             onChange={handleCriteriaChange}
+
                                             displayEmpty
-                                            input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)" }}
+
+                                            size="small"
+
+                                            sx={inputStyles}
+
                                             renderValue={(selected) => {
+
                                                 if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
+
+                                                    return <Typography sx={{ color: '#9e9e9e', fontSize: "12px" }}>Select Filter</Typography>;
+
                                                 }
+
                                                 return selected;
+
                                             }}
+
                                             MenuProps={{
+
                                                 PaperProps: {
+
                                                     sx: {
+
                                                         marginTop: "8px",
+
                                                         borderRadius: "8px", // Rounded edges
+
                                                         border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+
                                                         boxShadow: "none", // Optional: Remove shadow
+
                                                     },
+
                                                 },
+
                                             }}
+
                                         >
-                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select Filter</MenuItem>
+                                            <MenuItem value="" disabled sx={{ fontSize: "12px" }}>Select Filter</MenuItem>
                                             <MenuItem value="Account" sx={{ fontSize: "12px" }}>Account</MenuItem>
-                                            <MenuItem value="Business Unit" sx={{ fontSize: "12px" }}>Business Unit</MenuItem>
                                             <MenuItem value="City" sx={{ fontSize: "12px" }}>City</MenuItem>
-                                            <MenuItem value="Company" sx={{ fontSize: "12px" }}>Company</MenuItem>
+                                            <MenuItem value="Area" sx={{ fontSize: "12px" }}>Area</MenuItem>
+                                            <MenuItem value="Date" sx={{ fontSize: "12px" }}>Date</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
 
-                                <Box>
-                                    <InputLabel sx={labelStyles}>Value</InputLabel>
-                                    {criteria === "City" ? (
-                                        <FormControl fullWidth size="small" variant="outlined">
-                                            <Select
-                                                value={value}
-                                                onChange={(e) => setValue(e.target.value)}
-                                                displayEmpty
-                                                input={<OutlinedInput sx={selectStyles} />}
-                                                sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+
+                                {/*<Box>*/}
+                                {/*    <InputLabel sx={labelStyles}>Value</InputLabel>*/}
+                                {/*    {criteria === "City" ? (*/}
+                                {/*        <FormControl fullWidth size="small" variant="outlined">*/}
+                                {/*            <Select*/}
+                                {/*                value={value}*/}
+                                {/*                onChange={(e) => setValue(e.target.value)}*/}
+                                {/*                displayEmpty*/}
+                                {/*                input={<OutlinedInput sx={selectStyles} />}*/}
+                                {/*                sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}*/}
+                                {/*            >*/}
+                                {/*                <MenuItem value="">Select value</MenuItem>*/}
+                                {/*                <MenuItem value="Malwarehiva">Malwarehiva</MenuItem>*/}
+                                {/*                <MenuItem value="Other City">Other City</MenuItem>*/}
+                                {/*            </Select>*/}
+                                {/*        </FormControl>*/}
+                                {/*    ) : (*/}
+                                {/*        <TextField*/}
+                                {/*            type="text"*/}
+                                {/*            placeholder="$0, Search Value"*/}
+                                {/*            variant="outlined"*/}
+                                {/*            size="small"*/}
+                                {/*            value={value}*/}
+                                {/*            onChange={(e) => setValue(e.target.value)}*/}
+                                {/*            InputProps={{ sx: inputStyles }}*/}
+                                {/*            fullWidth*/}
+                                {/*        />*/}
+                                {/*    )}*/}
+                                {/*</Box>*/}
+
+                                <Box sx={{ pb: 2, }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                        <InputLabel sx={labelStyles}>Value</InputLabel>
+                                        {selectedCriteria === 'City' && (
+                                            <Typography
+                                                component="a"
+                                                sx={{ color: '#1976d2', cursor: 'pointer', textDecoration: 'none' }}
+                                                onClick={() => setSelectedCriteria('Area')}
                                             >
-                                                <MenuItem value="">Select value</MenuItem>
-                                                <MenuItem value="Malwarehiva">Malwarehiva</MenuItem>
-                                                <MenuItem value="Other City">Other City</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    ) : (
-                                        <TextField
-                                            type="text"
-                                            placeholder="$0, Search Value"
-                                            variant="outlined"
-                                            size="small"
-                                            value={value}
-                                            onChange={(e) => setValue(e.target.value)}
-                                            InputProps={{ sx: inputStyles }}
-                                            fullWidth
-                                        />
-                                    )}
+                                                Area
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                    {renderValueField()}
                                 </Box>
+
                             </Stack>
                         </Box>
                     </Box>
