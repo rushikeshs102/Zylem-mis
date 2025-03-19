@@ -29,7 +29,7 @@ import Popover from '@mui/material/Popover';
 
 import MainScreenPage from "../component/pages/MainScreenPage.jsx"
 import Collapse from '@mui/material/Collapse';
-import {Tooltip} from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -238,9 +238,9 @@ export default function Dashboard() {
 
     // Menu items to match your original layout
     const menuItems = [
-        { text: 'Dashboard', icon: <img src={DashboardIcon} alt="Dashboard" width={24} height={24} /> },
+        { text: 'Dashboard', icon: <img src={SearchIcon} alt="SearchIcon" width={24} height={24} /> },
         {
-            text: 'Menu', icon: <img src={MenuOpenIcon} alt="Menu" width={24} height={24} />, children: [
+            text: 'Menu', icon: <img src={MenuOpenIcon} alt="MenuOpenIcon" width={24} height={24} />, children: [
                 { text: 'Master' },
                 { text: 'Allied Master' },
                 { text: 'Linking' },
@@ -261,7 +261,7 @@ export default function Dashboard() {
         <Box sx={{ display: 'flex', height: '100vh' }}>
             <CssBaseline />
             <AppBar position="fixed" open={open} sx={{
-                bgcolor: 'background.paper', color: 'text.primary', boxShadow: 0, borderBottom: 1,
+                bgcolor: 'white', color: 'text.primary', boxShadow: 0, borderBottom: 1,
                 borderColor: 'divider'
             }}>
                 <Toolbar>
@@ -278,7 +278,7 @@ export default function Dashboard() {
                         <MenuIcon />
                     </IconButton>
                     <Box sx={{ flexGrow: 1 }} />
-                    <Box sx={{ display: 'flex', alignItems: 'center',gap:2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Tooltip title={
                             <Box
                                 sx={{
@@ -313,7 +313,7 @@ export default function Dashboard() {
                                     height: 32,
                                     width: 32,
                                     backgroundColor: "#EBF2FF",
-                                    borderRadius:'8px'
+                                    borderRadius: '8px'
                                 }}
                             >
                                 <Badge badgeContent={6} color="error" >
@@ -347,7 +347,7 @@ export default function Dashboard() {
                                     },
                                 },
                             }}>
-                        <IconButton size="large" color="inherit"
+                            <IconButton size="large" color="inherit"
                                 sx={{
                                     height: 32,
                                     width: 32,
@@ -403,11 +403,11 @@ export default function Dashboard() {
                             component="img"
                             src={logo}
                             alt="logo"
-                            sx={{ height: 32, marginRight: 'auto' }}
+                            sx={{ height: 50, marginRight: 'auto' }}
                         />
                     )}
                     <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <img src={ChevronLeftIcon} alt="NotificationsIcon" width={20} height={20} />
+                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <img src={ChevronLeftIcon} alt="SidebarClose" width={20} height={20} />
                         }
                     </IconButton>
                 </DrawerHeader>
@@ -417,7 +417,7 @@ export default function Dashboard() {
                     <Box sx={{ px: 2, paddingTop: 1, width: "110%" }}>
                         <Search sx={{ borderRadius: 5, }}>
                             <SearchIconWrapper >
-                                <img src={SearchIcon} alt="NotificationsIcon" width={24} height={24} />
+                                <img src={SearchIcon} alt="SearchIcon" width={24} height={24} />
                             </SearchIconWrapper>
                             <StyledInputBase
                                 placeholder="Search…"
@@ -536,7 +536,8 @@ export default function Dashboard() {
                                                                     "&:hover": {
                                                                         color: "#01429B", // Change text color on hover
                                                                     }
-                                                                } }}
+                                                                }
+                                                            }}
 
                                                         />
 
@@ -587,7 +588,7 @@ export default function Dashboard() {
 
 
                 {/* Main content area */}
-                <Box sx={{ flexGrow: 1, overflow: 'auto', position: 'relative' }}>
+                <Box sx={{ flexGrow: 1, overflow: 'auto', position: 'relative', backgroundColor: '#F4F6F8' }}>
                     {navPopupOpen && <MainScreenPage
 
                         onClose={handleNavPopupClose}

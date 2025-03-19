@@ -36,7 +36,7 @@ import CenteredModal from '../pages/CenteredModal';
 import UploadIcon from "../../icons/upload_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import FilterClose from "../../icons/dock_to_right_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 
 function SalesAnalysis() {
@@ -88,7 +88,7 @@ function SalesAnalysis() {
 
 
     // Filter states
-    const [criteria, setCriteria] = useState("Select Filter");
+    const [criteria, setCriteria] = useState("");
     const [value, setValue] = useState("");
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
@@ -374,7 +374,7 @@ function SalesAnalysis() {
         },
         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
             borderColor: '#60a5fa',
-            borderWidth: '1px',
+            borderWidth: '2px',
         },
         '& .MuiSelect-select': {
             padding: '4px 14px',
@@ -392,6 +392,18 @@ function SalesAnalysis() {
         "& .MuiInputBase-root": {
             color: "#121212",
         },
+
+        // Style the dropdown (Popper)
+        "& .MuiPaper-root": {
+            marginTop: "2px",
+            borderRadius: "8px",
+            border: "1px solid rgb(209, 213, 219)",  // Gray border
+            boxShadow: "none",
+            // Rounded corners for dropdown
+        },
+        "& .MuiMenuItem-root": {
+            fontSize: "12px", // Set font size for menu items
+        },
     };
 
     const inputStyles = {
@@ -399,15 +411,33 @@ function SalesAnalysis() {
         height: '35px',
         fontSize: '12px',
         color: '#909090',
+
         '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgb(209, 213, 219)',
+            borderColor: 'rgb(209, 213, 219)', // Default outline color
         },
         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#60a5fa',
+            borderColor: '#60a5fa', // Focused outline color
             borderWidth: '2px',
         },
+
+        // Set background color when focused
+        '&.Mui-focused .MuiOutlinedInput-root': {
+            backgroundColor: '#60a5fa',
+            borderRadius: '10px'// Same as outline color
+        },
+
         '& .MuiOutlinedInput-input': {
             padding: '4px 14px',
+            fontSize: '12px', // Set input text size to 12px
+        },
+
+        // Remove number input spinner
+        "& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button": {
+            "-webkit-appearance": "none",
+            margin: 0
+        },
+        "& input[type=number]": {
+            "-moz-appearance": "textfield" // Firefox
         }
     };
 
@@ -672,7 +702,7 @@ function SalesAnalysis() {
 
 
             <CenteredModal open={openModal} handleClose={handleModalClose} />
-            {/* Breadcrumbs*/}
+            {/* top Pannel Breadcrumbs*/}
             <Box sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -682,15 +712,28 @@ function SalesAnalysis() {
                 borderColor: 'divider'
             }}>
                 <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="large" />}>
-                    <Link underline="hover" color="inherit" href="#">
+                    <Typography  color="inherit">
                         Report
-                    </Link>
-                    <Link underline="hover" color="inherit" href="#">
-                        Sales
-                    </Link>
-                    <Typography color="text.primary" fontWeight="medium">
-                        Sales Analysis
                     </Typography>
+                    <Typography  color="inherit">
+                        Sales
+                    </Typography>
+                    <Link
+                        href="#"
+                        underline="hover"
+                        color="text.primary"
+                        fontWeight="medium"
+                        sx={{
+                            "&:hover": {
+                                color: "#01429B",  // Change text color on hover
+                                textDecorationColor: "#01429B", // Change underline color on hover
+                            },
+                            textDecorationColor: "inherit", // Ensures underline color matches text by default
+                        }}
+                    >
+                        Sales Analysis
+                    </Link>
+
                 </Breadcrumbs>
                 <Button
                     variant="outlined"
@@ -719,9 +762,10 @@ function SalesAnalysis() {
                     Upload
                 </Button>
             </Box>
-            <div style={{ backgroundColor: '#F4F6F8' }} className="flex flex-1 w-full h-[90%]">
-                {/* Sales Filter Panel - Always visible */}
 
+            <div style={{ backgroundColor: '#F4F6F8' }} className={`flex flex-1 h-[90%] ${sideBarState ? "w-[100%]" : "w-[80%]"}`} >
+
+                {/* Sales Filter Panel - Always visible */}
                 {!isFilterOpen && (
                     <IconButton size="small" onClick={handleOpenFilter} sx={{
                         width: 32,
@@ -747,7 +791,8 @@ function SalesAnalysis() {
                         zIndex: 10,
                         display: 'flex',
                         flexDirection: 'column',
-                        height: '100%'
+                        height: '100%',
+                        mb: 4,
                     }}>
                         <Box sx={{
                             display: 'flex',
@@ -767,7 +812,7 @@ function SalesAnalysis() {
                                 Filter
                             </Typography>
                             <Box sx={{ right: 0 }}>
-                                <IconButton size="small" onClick={handleCloseFilter}  >
+                                <IconButton size="small" >
                                     <CloseIcon1 fontSize="small" />
                                 </IconButton>
                             </Box>
@@ -782,17 +827,30 @@ function SalesAnalysis() {
                                             displayEmpty
                                             defaultValue=""
 
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{
+                                                ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)",  // Gray border
+
+                                            }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
                                                     return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                 }
                                                 return selected;
                                             }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        marginTop: "8px",
+                                                        borderRadius: "8px", // Rounded edges
+                                                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                        boxShadow: "none", // Optional: Remove shadow
+                                                    },
+                                                },
+                                            }}
                                         >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
+                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select option </MenuItem>
+                                            <MenuItem value="invoice date" sx={{ fontSize: "12px" }} >invoice date </MenuItem>
+                                            <MenuItem value="Tp date" sx={{ fontSize: "12px" }} >TP date </MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -804,17 +862,27 @@ function SalesAnalysis() {
                                             displayEmpty
                                             defaultValue=""
                                             input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)", }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
                                                     return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                 }
                                                 return selected;
                                             }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        marginTop: "8px",
+                                                        borderRadius: "8px", // Rounded edges
+                                                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                        boxShadow: "none", // Optional: Remove shadow
+                                                    },
+                                                },
+                                            }}
                                         >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
+                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select option</MenuItem>
+                                            <MenuItem value="option1" sx={{ fontSize: "12px" }}>Option 1</MenuItem>
+                                            <MenuItem value="option2" sx={{ fontSize: "12px" }}>Option 2</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -876,7 +944,7 @@ function SalesAnalysis() {
                                             InputProps={{
                                                 sx: inputStyles,
                                                 endAdornment: (
-                                                    <IconButton size="small" onClick={handleToCalendarOpen}>
+                                                    <IconButton size="small" onClick={handleToCalendarOpen} sx={{ marginRight: -2 }}>
                                                         <img src={calandericon} alt="calander" width={20} height={20} />
                                                     </IconButton>
                                                 )
@@ -936,17 +1004,28 @@ function SalesAnalysis() {
                                             displayEmpty
                                             defaultValue=""
                                             input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)", }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
                                                     return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                 }
                                                 return selected;
                                             }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        marginTop: "8px",
+                                                        borderRadius: "8px", // Rounded edges
+                                                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                        boxShadow: "none", // Optional: Remove shadow
+                                                    },
+                                                },
+                                            }}
                                         >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
+
+                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select option</MenuItem>
+                                            <MenuItem value="option1" sx={{ fontSize: "12px" }}>Option 1</MenuItem>
+                                            <MenuItem value="option2" sx={{ fontSize: "12px" }}>Option 2</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -958,17 +1037,27 @@ function SalesAnalysis() {
                                             displayEmpty
                                             defaultValue=""
                                             input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)", }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
                                                     return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                 }
                                                 return selected;
                                             }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        marginTop: "8px",
+                                                        borderRadius: "8px", // Rounded edges
+                                                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                        boxShadow: "none", // Optional: Remove shadow
+                                                    },
+                                                },
+                                            }}
                                         >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
+                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select option</MenuItem>
+                                            <MenuItem value="option1" sx={{ fontSize: "12px" }}>Option 1</MenuItem>
+                                            <MenuItem value="option2" sx={{ fontSize: "12px" }}>Option 2</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -980,17 +1069,27 @@ function SalesAnalysis() {
                                             displayEmpty
                                             defaultValue=""
                                             input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)", }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
                                                     return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                 }
                                                 return selected;
                                             }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        marginTop: "8px",
+                                                        borderRadius: "8px", // Rounded edges
+                                                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                        boxShadow: "none", // Optional: Remove shadow
+                                                    },
+                                                },
+                                            }}
                                         >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
+                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select option</MenuItem>
+                                            <MenuItem value="option1" sx={{ fontSize: "12px" }}>Option 1</MenuItem>
+                                            <MenuItem value="option2" sx={{ fontSize: "12px" }}>Option 2</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -1003,17 +1102,27 @@ function SalesAnalysis() {
                                                 displayEmpty
                                                 defaultValue=""
                                                 input={<OutlinedInput sx={selectStyles} />}
-                                                sx={{ ml: 0.5, borderRadius: 2, height: 35, width: 140 }}
+                                                sx={{ ml: 0.5, borderRadius: 2, height: 35, width: 140, ...selectStyles, border: "1px solid rgb(209, 213, 219)" }}
                                                 renderValue={(selected) => {
                                                     if (!selected) {
                                                         return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                     }
                                                     return selected;
                                                 }}
+                                                MenuProps={{
+                                                    PaperProps: {
+                                                        sx: {
+                                                            marginTop: "8px",
+                                                            borderRadius: "8px", // Rounded edges
+                                                            border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                            boxShadow: "none", // Optional: Remove shadow
+                                                        },
+                                                    },
+                                                }}
                                             >
-                                                <MenuItem value="">Select option</MenuItem>
-                                                <MenuItem value="option1">Option 1</MenuItem>
-                                                <MenuItem value="option2">Option 2</MenuItem>
+                                                <MenuItem value="" sx={{ fontSize: "12px" }}>Select option</MenuItem>
+                                                <MenuItem value="option1" sx={{ fontSize: "12px" }} >Option 1</MenuItem>
+                                                <MenuItem value="option2" sx={{ fontSize: "12px" }}>Option 2</MenuItem>
                                             </Select>
                                         </FormControl>
                                         <TextField
@@ -1022,7 +1131,7 @@ function SalesAnalysis() {
                                             variant="outlined"
                                             size="small"
                                             InputProps={{ sx: inputStyles }}
-                                            sx={{ width: '30%', height: 35, mr: 0.5 }}
+                                            sx={{ width: '35%', height: 35, mr: 0.5 }}
 
                                         />
                                     </Box>
@@ -1047,18 +1156,28 @@ function SalesAnalysis() {
                                             displayEmpty
                                             defaultValue=""
                                             input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)" }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
                                                     return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                 }
                                                 return selected;
                                             }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        marginTop: "8px",
+                                                        borderRadius: "8px", // Rounded edges
+                                                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                        boxShadow: "none", // Optional: Remove shadow
+                                                    },
+                                                },
+                                            }}
 
                                         >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
+                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select option</MenuItem>
+                                            <MenuItem value="option1" sx={{ fontSize: "12px" }}>Option 1</MenuItem>
+                                            <MenuItem value="option2" sx={{ fontSize: "12px" }}>Option 2</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -1070,18 +1189,28 @@ function SalesAnalysis() {
                                             displayEmpty
                                             defaultValue=""
                                             input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)" }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
                                                     return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                 }
                                                 return selected;
                                             }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        marginTop: "8px",
+                                                        borderRadius: "8px", // Rounded edges
+                                                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                        boxShadow: "none", // Optional: Remove shadow
+                                                    },
+                                                },
+                                            }}
 
                                         >
-                                            <MenuItem value="">Select option</MenuItem>
-                                            <MenuItem value="option1">Option 1</MenuItem>
-                                            <MenuItem value="option2">Option 2</MenuItem>
+                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select option</MenuItem>
+                                            <MenuItem value="option1" sx={{ fontSize: "12px" }}>Option 1</MenuItem>
+                                            <MenuItem value="option2" sx={{ fontSize: "12px" }}>Option 2</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -1142,19 +1271,29 @@ function SalesAnalysis() {
                                             onChange={handleCriteriaChange}
                                             displayEmpty
                                             input={<OutlinedInput sx={selectStyles} />}
-                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35 }}
+                                            sx={{ ml: 0.5, width: '96%', borderRadius: 2, height: 35, ...selectStyles, border: "1px solid rgb(209, 213, 219)" }}
                                             renderValue={(selected) => {
                                                 if (!selected) {
-                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select Filter</span>;
+                                                    return <span style={{ color: '#909090', fontSize: "12px" }}>Select option</span>;
                                                 }
                                                 return selected;
                                             }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        marginTop: "8px",
+                                                        borderRadius: "8px", // Rounded edges
+                                                        border: "1px solid rgb(209, 213, 219)", // Gray border for dropdown
+                                                        boxShadow: "none", // Optional: Remove shadow
+                                                    },
+                                                },
+                                            }}
                                         >
-                                            <MenuItem value="">Select Filter</MenuItem>
-                                            <MenuItem value="Account">Account</MenuItem>
-                                            <MenuItem value="Business Unit">Business Unit</MenuItem>
-                                            <MenuItem value="City">City</MenuItem>
-                                            <MenuItem value="Company">Company</MenuItem>
+                                            <MenuItem value="" sx={{ fontSize: "12px" }}>Select Filter</MenuItem>
+                                            <MenuItem value="Account" sx={{ fontSize: "12px" }}>Account</MenuItem>
+                                            <MenuItem value="Business Unit" sx={{ fontSize: "12px" }}>Business Unit</MenuItem>
+                                            <MenuItem value="City" sx={{ fontSize: "12px" }}>City</MenuItem>
+                                            <MenuItem value="Company" sx={{ fontSize: "12px" }}>Company</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -1191,6 +1330,7 @@ function SalesAnalysis() {
                             </Stack>
                         </Box>
                     </Box>
+
                 )}
 
                 {/* Drag and Drop Component */}
@@ -1227,7 +1367,7 @@ function SalesAnalysis() {
                                                 borderRadius: 1,
                                             }}
                                         >
-                                            <Typography variant="h9" fontWeight="bold"  sx={{ paddingLeft: 1, paddingTop:1 }}>
+                                            <Typography sx={{ fontSize: "14px" }} fontWeight="bold" sx={{ paddingLeft: 1, paddingTop: 1 }}>
                                                 Select controls
                                             </Typography>
                                             <TextField
@@ -1267,7 +1407,7 @@ function SalesAnalysis() {
                                                     border: "1px solid",
                                                     borderColor: "divider",
                                                     borderRadius: 1,
-                                                    paddingLeft: 1,
+                                                    //paddingLeft: 1,
 
                                                     "& .MuiPaper-root": {
                                                         boxShadow: "none",
@@ -1287,14 +1427,13 @@ function SalesAnalysis() {
                                                                 elevation={0}
                                                                 sx={{
                                                                     p: 0.5,
+                                                                    pl:1,
                                                                     mb: 0,
                                                                     cursor: "pointer",
-                                                                    "&:hover": {
-                                                                        backgroundColor: "rgba(0, 0, 0, 0.04)",
-                                                                    },
+                                                                    '&:hover': { backgroundColor: '#e3f2fd' },
                                                                 }}
                                                             >
-                                                                <Typography variant="body2">{item}</Typography>
+                                                                <Typography sx={{ fontSize: "12px", fontFamily: "Inter, sans-serif" }}>{item}</Typography>
                                                             </Paper>
                                                         )}
                                                     </Draggable>
@@ -1313,7 +1452,7 @@ function SalesAnalysis() {
                                         flexDirection: "column",
                                         gap: 2,
                                         mr: 5,
-                                        //pr: 0.5,
+                                        pr: 0.2,
                                     }}
                                 >
                                     {/* Upper box - Rows Header */}
@@ -1946,6 +2085,7 @@ function SalesAnalysis() {
                                 </Box>
                             </Box>
                         </DragDropContext>
+
                     </div>
                 </div>
 
