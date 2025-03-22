@@ -6,7 +6,8 @@ const GeneralStateSlice = createSlice({
         mainScreenItem: "",
         visibleMainScreen: false,
         notificationStatus: false,
-        sidebarState : true,
+        sidebarState: true,
+        isFilterOpen:true,
     },
     reducers: {
         setScreenPage(state,action) {
@@ -35,10 +36,17 @@ const GeneralStateSlice = createSlice({
         closeSidebar(state) {
             state.sidebarState = false;
         },
+        openFilter(state) {
+            state.isFilterOpen = true;
+        },
+
+        closeFilter(state) {
+            state.isFilterOpen = false;
+        },
 
     }
 
 })
-export const { setScreenPage, clearScreenPage, showScreenPage, hideScreenPage, toggleNotify, openSideBar, closeSidebar } = GeneralStateSlice.actions;
+export const { setScreenPage, clearScreenPage, showScreenPage, hideScreenPage, toggleNotify, openSideBar, closeSidebar, openFilter, closeFilter } = GeneralStateSlice.actions;
 
 export default GeneralStateSlice.reducer;

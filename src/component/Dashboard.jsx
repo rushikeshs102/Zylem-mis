@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -8,10 +7,10 @@ import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -34,9 +33,7 @@ import { Tooltip } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import CenteredModal from "../component/pages/CenteredModal";
-
-
-
+import { useState } from 'react';
 
 //new icons
 import logo from "../assets/logo.png";
@@ -49,6 +46,7 @@ import NotificationsIcon from "../icons/notifications_unread_24dp_1F1F1F_FILL0_w
 
 import SettingsIcon from "../icons/settings_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
 import ChevronLeftIcon from "../icons/left_panel_close_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
+import DrawerOpen from '../icons/right_panel_close_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
 import SearchIcon from "../icons/manage_search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg"
 import LogoutIcon from '@mui/icons-material/Logout';
 
@@ -57,71 +55,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setScreenPage, openSideBar, closeSidebar } from '../component/Slice/GeneralStateSlice';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 
-const drawerWidth = 220;
-
-const openedMixin = (theme) => ({
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-    }),
-    overflowX: 'hidden',
-});
-
-const closedMixin = (theme) => ({
-    transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: 'hidden',
-    width: `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up('sm')]: {
-        width: `calc(${theme.spacing(8)} + 1px)`,
-    },
-});
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: theme.spacing(0, 1),
-    ...theme.mixins.toolbar,
-}));
-
-const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    }),
-}));
-
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-    ({ theme, open }) => ({
-        width: drawerWidth,
-        flexShrink: 0,
-        whiteSpace: 'nowrap',
-        boxSizing: 'border-box',
-        ...(open && {
-            ...openedMixin(theme),
-            '& .MuiDrawer-paper': openedMixin(theme),
-        }),
-        ...(!open && {
-            ...closedMixin(theme),
-            '& .MuiDrawer-paper': closedMixin(theme),
-        }),
-    }),
-);
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -161,8 +95,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-export default function Dashboard() {
-    const theme = useTheme();
+
+
+
+function Dashboard() {
+    const [darkMode, setDarkMode] = React.useState(false);
+    const [drawerOpen, setDrawerOpen] = React.useState(true);
+    const [currentPath, setCurrentPath] = React.useState('/dashboard');
+
     const [open, setOpen] = React.useState(true);
     const [notificationAnchorEl, setNotificationAnchorEl] = React.useState(null);
     const notificationOpen = Boolean(notificationAnchorEl);
@@ -173,6 +113,8 @@ export default function Dashboard() {
 
     const [navPopupOpen, setNavPopupOpen] = useState(false); // State for navigation popup
 
+    const [menuItemsCollapsed, setMenuItemsCollapsed] = React.useState(false);
+
     const handleNavPopupClose = () => {
         setNavPopupOpen(false);
     };
@@ -182,42 +124,53 @@ export default function Dashboard() {
 
         // Check if the menu item has children
         if (menuItems.find(item => item.text === itemText)?.children) {
-            handleSubMenuToggle(itemText);
+            // Create a new object for openSubMenu state
+            const newOpenSubMenu = {};
 
-            // If submenu is being closed, reset selectedChild
+            // If the clicked item was not already open, open only that item
+            // Otherwise close everything (clicking an already open item closes it)
+            if (!openSubMenu[itemText]) {
+                newOpenSubMenu[itemText] = true;
+            }
+
+            // Replace the entire openSubMenu state
+            setOpenSubMenu(newOpenSubMenu);
+
+            // If submenu was previously open, reset selectedChild
             if (openSubMenu[itemText]) {
                 setSelectedChild(null);
             }
         }
     };
 
-
     const handleChildClick = (subItem) => {
-
-        console.log("clicked" + subItem);
+        console.log("clicked " + subItem);
         setNavPopupOpen(true);
-        dispatch(setScreenPage({ mainScreenItem: subItem.replace(" ", "_") })) //pass selected item without space
-        selectedChild(subItem);
-
-
+        dispatch(setScreenPage({ mainScreenItem: subItem.replace(" ", "_") })); //pass selected item without space
+        setSelectedChild(subItem); // Fixed: was calling selectedChild as function
+        console.log(subItem)
     };
-
 
     const handleSubMenuToggle = (text) => {
         setOpenSubMenu((prev) => ({ ...prev, [text]: !prev[text] }));
     };
+
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const notifyStatus = useSelector((state) => state.generalState.notificationStatus);
 
+    const isFilterOpen = useSelector((state) => state.generalState.isFilterOpen);
+
+    console.log("isFilterOpen :" + isFilterOpen);
 
     React.useEffect(() => {
-        setNotificationAnchorEl(false);
+        setNotificationAnchorEl(null); // Fixed: was setting to false
     }, [notifyStatus]);
 
     const handleDrawerOpen = () => {
         setOpen(true);
+        setDrawerOpen(true);
         dispatch(openSideBar());
     };
 
@@ -225,6 +178,7 @@ export default function Dashboard() {
         setOpen(false);
         setNavPopupOpen(false);
         dispatch(closeSidebar());
+        setDrawerOpen(false);
     };
 
     const handleNotificationClick = (event) => {
@@ -233,14 +187,27 @@ export default function Dashboard() {
 
     // Handle notification close
     const handleNotificationClose = () => {
-        setNotificationAnchorEl(false);
+        setNotificationAnchorEl(null); // Fixed: was setting to false
     };
 
-    // Menu items to match your original layout
+    const toggleMenuCollapse = () => {
+        console.log("state: " + menuItemsCollapsed);
+
+        if (menuItemsCollapsed === true) { // Fixed: was using == instead of ===
+            setMenuItemsCollapsed(false);
+            console.log("open drawer");
+            handleDrawerOpen();
+        } else {
+            setMenuItemsCollapsed(true);
+            console.log("closed drawer");
+            handleDrawerClose();
+        }
+    };
+
     const menuItems = [
-        { text: 'Dashboard', icon: <img src={SearchIcon} alt="SearchIcon" width={24} height={24} /> },
+        { text: 'Dashboard', icon: <img src={DashboardIcon} alt="Dashboard" width={24} height={24} /> },
         {
-            text: 'Menu', icon: <img src={MenuOpenIcon} alt="MenuOpenIcon" width={24} height={24} />, children: [
+            text: 'Menu', icon: <img src={MenuOpenIcon} alt="Menu" width={24} height={24} />, children: [
                 { text: 'Master' },
                 { text: 'Allied Master' },
                 { text: 'Linking' },
@@ -252,352 +219,440 @@ export default function Dashboard() {
                 { text: 'NOC status' },
             ]
         },
-        { text: 'Quick Links', icon: <img src={QuickLinksIcon} alt="Quick Links" width={24} height={24} /> },
+        {
+            text: 'Quick Links', icon: <img src={QuickLinksIcon} alt="Quick Links" width={24} height={24} />, children: [
+                { text: 'Master' },
+                { text: 'Allied Master' },
+                { text: 'Linking' },
+                { text: 'Target' },
+                { text: 'Others' },
+                { text: 'Reports' },
+                { text: 'Settings' },
+                { text: 'Transactions' },
+                { text: 'NOC status' },
+            ]
+        },
         { text: 'Favorite', icon: <img src={StarBorderIcon} alt="Favorite" width={24} height={24} /> },
         { text: 'Scheduler', icon: <img src={AccessTimeIcon} alt="Scheduler" width={24} height={24} /> },
     ];
 
+    // Create theme with light/dark mode support
+    const theme = React.useMemo(
+        () =>
+            createTheme({
+                palette: {
+                    mode: darkMode ? 'dark' : 'light',
+                },
+                breakpoints: {
+                    values: {
+                        xs: 0,
+                        sm: 600,
+                        md: 600,
+                        lg: 1200,
+                        xl: 1536,
+                    },
+                },
+            }),
+        [darkMode]
+    );
+
+    const toggleDrawer = () => {
+        if (drawerOpen === true) { // Fixed: was using == instead of ===
+            setMenuItemsCollapsed(false);
+            console.log("open drawer");
+            handleDrawerOpen();
+        } else {
+            setMenuItemsCollapsed(true);
+            console.log("closed drawer");
+            handleDrawerClose();
+        }
+        setDrawerOpen(!drawerOpen);
+    };
+
+    const handleNavigation = (path) => {
+        setCurrentPath(path);
+    };
+
+    // Drawer width when open
+    const drawerWidth = 200;
+    // Drawer width when closed (icon only)
+    const collapsedDrawerWidth = 65;
+
     return (
-        <Box sx={{ display: 'flex', height: '100vh' }}>
+        <ThemeProvider theme={theme}>
             <CssBaseline />
-            <AppBar position="fixed" open={open} sx={{
-                bgcolor: 'white', color: 'text.primary', boxShadow: 0, borderBottom: 1,
-                borderColor: 'divider'
-            }}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        sx={{
-                            marginRight: 5,
-                            ...(open && { display: 'none' }),
-                        }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Box sx={{ flexGrow: 1 }} />
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Tooltip title={
-                            <Box
-                                sx={{
-                                    backgroundColor: "#121212",
-                                    height: "auto",
-                                    overflow: "auto",
+            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+                {/* Header */}
+                <Box position="fixed" sx={{
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    bgcolor: 'background.paper',
+                    color: 'text.primary',
+                    boxShadow: 0,
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    width: '100%' // Ensure the header spans the full width
+                }}>
+                    <Toolbar sx={{
+                        justifyContent: 'space-between',
+                        padding: '0 16px',
+          
+                        minHeight: '55px !important',  // Force override
+                        height: '55px !important',
+                    }} >
+                        {/* Logo on left side */}
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", width: "175px" }}>
+                                <Box
+                                    component="img"
+                                    src={logo}
+                                    alt="logo"
+                                    sx={{ height: 38, marginRight: 'auto' }}
+                                />
+                                {
+                                    drawerOpen ?
+                                        <IconButton onClick={handleDrawerClose}>
 
-                                }}
-                            >
-                                <Typography
+                                            <img src={ChevronLeftIcon} alt="SidebarClose" width={20} height={20} />
+                                        </IconButton>
+                                        :
+                                        <IconButton onClick={handleDrawerOpen}>
+                                            <img src={DrawerOpen} alt="SidebarOpen" width={20} height={20} />
+                                        </IconButton>
+                                }
+                            </Box>
+                        </Box>
 
-                                    sx={{ fontSize: "12px", color: "#fff" }}
+                        <Divider orientation="vertical" sx={{ height: "55px" }} />
+
+
+                        {/* Icons on right side */}
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            marginLeft: 'auto' // Ensure this section is pushed to the right
+                        }}>
+                            <Tooltip title={
+                                <Box sx={{ backgroundColor: "#121212", height: "auto", overflow: "auto" }}>
+                                    <Typography sx={{ fontSize: "12px", color: "#fff" }}>
+                                        Notification
+                                    </Typography>
+                                </Box>
+                            }
+                                arrow
+                                PopperProps={{
+                                    sx: {
+                                        "& .MuiTooltip-tooltip": {
+                                            backgroundColor: "#121212",
+                                            color: "text.primary",
+                                        },
+                                    },
+                                }}>
+                                <IconButton
+                                    size="large"
+                                    color="inherit"
+                                    onClick={handleNotificationClick}
+                                    aria-describedby="notification-popover"
+                                    sx={{
+                                        height: 32,
+                                        width: 32,
+                                        backgroundColor: "#EBF2FF",
+                                        borderRadius: '8px'
+                                    }}
                                 >
-                                    Notification
+                                    <Badge badgeContent={6} color="error">
+                                        <img src={NotificationsIcon} alt="NotificationsIcon" width={24} height={24} />
+                                    </Badge>
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title={
+                                <Box sx={{ backgroundColor: "#121212", height: "auto", overflow: "auto" }}>
+                                    <Typography sx={{ fontSize: "12px", color: "#fff" }}>
+                                        Settings
+                                    </Typography>
+                                </Box>
+                            }
+                                arrow
+                                PopperProps={{
+                                    sx: {
+                                        "& .MuiTooltip-tooltip": {
+                                            backgroundColor: "#121212",
+                                            color: "text.primary",
+                                        },
+                                    },
+                                }}>
+                                <IconButton
+                                    size="large"
+                                    color="inherit"
+                                    sx={{
+                                        height: 32,
+                                        width: 32,
+                                        backgroundColor: "#EBF2FF",
+                                        borderRadius: '8px'
+                                    }}
+                                >
+                                    <SettingsOutlinedIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+
+                            <Divider orientation="vertical" sx={{ height: "55px" }} />
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+                                <Avatar
+                                    src="https://randomuser.me/api/portraits/men/5.jpg"
+                                    sx={{
+                                        width: 42,
+                                        height: 42,
+                                        borderRadius: '4px',
+                                        objectFit: 'cover'
+                                    }}
+                                />
+                                <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 500 }}>
+                                    Admin
                                 </Typography>
                             </Box>
-                        } arrow
-                            PopperProps={{
-                                sx: {
-                                    "& .MuiTooltip-tooltip": {
-                                        backgroundColor: "#121212",
-                                        color: "text.primary",
-                                    },
-                                },
-                            }}>
-                            <IconButton
-                                size="large"
-                                color="inherit"
-                                onClick={handleNotificationClick}
-                                aria-describedby="notification-popover"
-                                sx={{
-                                    height: 32,
-                                    width: 32,
-                                    backgroundColor: "#EBF2FF",
-                                    borderRadius: '8px'
-                                }}
-                            >
-                                <Badge badgeContent={6} color="error" >
-                                    <img src={NotificationsIcon} alt="NotificationsIcon" width={24} height={24} />
-                                </Badge>
-                            </IconButton>
-                        </Tooltip>
+                        </Box>
+                    </Toolbar>
+                </Box>
 
-                        <Tooltip title={
-                            <Box
-                                sx={{
-                                    backgroundColor: "#121212",
-                                    height: "auto",
-                                    overflow: "auto",
-
-                                }}
-                            >
-                                <Typography
-
-                                    sx={{ fontSize: "12px", color: "#fff" }}
-                                >
-                                    Settings
-                                </Typography>
-                            </Box>
-                        } arrow
-                            PopperProps={{
-                                sx: {
-                                    "& .MuiTooltip-tooltip": {
-                                        backgroundColor: "#121212",
-                                        color: "text.primary",
-                                    },
-                                },
-                            }}>
-                            <IconButton size="large" color="inherit"
-                                sx={{
-                                    height: 32,
-                                    width: 32,
-                                    backgroundColor: "#EBF2FF",
-                                    borderRadius: '8px'
-                                }}
-                            >
-                                <SettingsOutlinedIcon width={24} height={24} />
-                            </IconButton>
-                        </Tooltip>
-
-                        <Divider orientation="vertical" flexItem sx={{ mx: 2, height: 62 }} />
-                        <Avatar src="https://randomuser.me/api/portraits/men/5.jpg" sx={{ width: 42, height: 42, borderRadius: '4px', objectFit: 'cover' }} />
-                        <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 500 }}>
-                            Admin
-                        </Typography>
-                    </Box>
-                </Toolbar>
-            </AppBar>
-
-
-            <Popover
-                id="notification-popover"
-                open={notificationOpen}
-                anchorEl={notificationAnchorEl}
-                onClose={handleNotificationClose}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                sx={{
-                    mt: 1,
-                    '& .MuiPopover-paper': {
-                        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-                        borderRadius: '8px',
-                        overflow: 'visible'
-                    }
-                }}
-            >
-                <NotificationPage />
-            </Popover>
-
-
-
-            <Drawer variant="permanent" open={open}>
-                <DrawerHeader>
-                    {open && (
-                        <Box
-                            component="img"
-                            src={logo}
-                            alt="logo"
-                            sx={{ height: 50, marginRight: 'auto' }}
-                        />
-                    )}
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <img src={ChevronLeftIcon} alt="SidebarClose" width={20} height={20} />
-                        }
-                    </IconButton>
-                </DrawerHeader>
-                <Divider />
-
-                {open && (
-                    <Box sx={{ px: 2, paddingTop: 1, width: "110%" }}>
-                        <Search sx={{ borderRadius: 5, }}>
-                            <SearchIconWrapper >
-                                <img src={SearchIcon} alt="SearchIcon" width={24} height={24} />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                placeholder="Search…"
-                                inputProps={{ 'aria-label': 'search' }}
-                                sx={{
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    width: "100%",
-                                }}
-                            />
-
-                        </Search>
-                    </Box>
-                )}
-
-                <Box
+                <Popover
+                    id="notification-popover"
+                    open={notificationOpen}
+                    anchorEl={notificationAnchorEl}
+                    onClose={handleNotificationClose}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
                     sx={{
-                        flexGrow: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        overflow: 'hidden' // Hide overflow on the container
+                        mt: 1,
+                        '& .MuiPopover-paper': {
+                            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+                            borderRadius: '8px',
+                            overflow: 'visible'
+                        }
                     }}
                 >
-                    <List>
-                        {menuItems.map((item) => (
-                            <React.Fragment key={item.text}>
-                                <ListItem disablePadding sx={{ display: "block" }}>
-                                    <ListItemButton
-                                        onClick={() => handleItemClick(item.text)}
-                                        sx={{
-                                            minHeight: 25,
-                                            justifyContent: open ? "initial" : "center",
-                                            px: 2,
-                                            py: 0.2,
-                                            color: openSubMenu[item.text] ? "#01429B" : "inherit",
-                                            backgroundColor: openSubMenu[item.text] ? "#EBF2FF" : "inherit",
-                                            borderRadius: "12px",
-                                            mx: openSubMenu[item.text] ? 0.5 : null,
-                                            pl: openSubMenu[item.text] ? 2.2 : 2.5,
-                                        }}
-                                    >
-                                        {item.icon && (
-                                            <ListItemIcon
-                                                sx={{
-                                                    minWidth: 0,
-                                                    mr: open ? 2 : "auto",
-                                                    justifyContent: "center",
-                                                    filter: openSubMenu[item.text] ? "invert(17%) sepia(98%) saturate(2083%) hue-rotate(206deg) brightness(99%) contrast(92%)" : "none",
-                                                }}
-                                            >
-                                                {item.icon}
-                                            </ListItemIcon>
-                                        )}
-                                        <ListItemText
-                                            primary={item.text}
-                                            sx={{ opacity: open ? 1 : 0 }}
-                                            primaryTypographyProps={{
-                                                fontSize: "14px",
-                                                fontWeight: openSubMenu[item.text] ? 600 : 400,
-                                            }}
-                                        />
-                                        {open && item.children && (
-                                            <div style={{ color: openSubMenu[item.text] ? "#1976d2" : "inherit" }}>
-                                                {openSubMenu[item.text] ? <ExpandLess /> : <ExpandMore />}
-                                            </div>
-                                        )}
-                                    </ListItemButton>
-                                </ListItem>
-                                {item.children && (
-                                    <Collapse in={openSubMenu[item.text]} timeout="auto" unmountOnExit>
-                                        {open && (
-                                            <List component="div" disablePadding>
-                                                {item.children.map((subItem, index) => (
-                                                    <ListItemButton
-                                                        onClick={() => handleChildClick(subItem.text)}
-                                                        key={subItem.text}
-                                                        sx={{
-                                                            bgcolor: "#F4F6F8",
-                                                            py: 0.2,
-                                                            pl: 6,
-                                                            position: "relative",
-                                                            "&::before": {
-                                                                content: '""',
-                                                                position: "absolute",
-                                                                left: 24,
-                                                                top: "0%",
-                                                                height: index === item.children.length - 1 ? "50%" : "100%",// Avoid extra line on first item
-                                                                width: "2px",
-                                                                backgroundColor: "#C4C4C4", // Line color
-                                                            },
-                                                            "&::after": {
-                                                                content: '""',
-                                                                position: "absolute",
-                                                                left: 22,
-                                                                top: "50%",
-                                                                transform: "translateY(-50%)",
-                                                                width: 8,
-                                                                height: 8,
-                                                                borderRadius: "50%",
-                                                                backgroundColor:
-                                                                    selectedChild === subItem.text ? "#01429B" : "#999",
-                                                                transition: "background-color 0.3s ease-in-out", // Smooth transition effect
-                                                            },
-                                                            "&:hover::after": {
-                                                                backgroundColor: "#01429B", // Change dot color on hover
-                                                            },
-                                                        }}
-                                                    >
-                                                        <ListItemText
-                                                            primary={subItem.text}
-                                                            primaryTypographyProps={{
-                                                                fontSize: "12px", sx: {
-                                                                    color: selectedChild === subItem.text ? "#01429B" : "#000", // Change text color when selected
-                                                                    transition: "color 0.3s ease-in-out", // Smooth transition
-                                                                    "&:hover": {
-                                                                        color: "#01429B", // Change text color on hover
-                                                                    }
-                                                                }
-                                                            }}
+                    <NotificationPage />
+                </Popover>
 
-                                                        />
+                {/* Main content with collapsible sidebar */}
+                <Box sx={{ position: "fixed", display: 'flex', flexGrow: 1, pt: '55px', width:"100%" }}>
+                    {/* Sidebar - always visible, collapsible */}
 
-                                                        {open && (
-                                                            <ListItemIcon sx={{ minWidth: 22, color: "gray" }}>
-                                                                <ChevronRightIcon fontSize="small" />
-                                                            </ListItemIcon>
-                                                        )}
-                                                    </ListItemButton>
-                                                ))}
-                                            </List>
-                                        )}
-                                    </Collapse>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </List>
-                </Box>
-
-
-                <Divider sx={{ width: '100%', backgroundColor: "#D1D5DB", px: 0 }} />
-                <Box sx={{ mt: 'auto', px: 2 }}>
-                    <ListItemButton
+                    <Box
+                        component="nav"
                         sx={{
-                            minHeight: 48,
-                            justifyContent: open ? 'initial' : 'center',
-                            px: 2.5,
-                            color: 'error.main',
+                            width: drawerOpen ? drawerWidth : collapsedDrawerWidth,
+                            flexShrink: 0,
+                            transition: theme.transitions.create('width', {
+                                easing: theme.transitions.easing.sharp,
+                                duration: theme.transitions.duration.enteringScreen,
+                            }),
+                            borderRight: `1px solid ${theme.palette.divider}`,
+                            bgcolor: theme.palette.background.paper,
+                            overflowX: 'hidden',
+                            height: '100%',
+                            position: 'relative',
+                            zIndex: 1500,
                         }}
                     >
-                        <ListItemIcon
-                            sx={{
-                                minWidth: 0,
-                                mr: open ? 3 : 'auto',
-                                justifyContent: 'center',
-                                color: 'error.main',
-                            }}
-                        >
-                            <LogoutIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
-                    </ListItemButton>
-                </Box>
-            </Drawer>
-            <Box component="main" sx={{ flexGrow: 1, p: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>
-                <DrawerHeader />
+                        <Box sx={{ height: 480, }}>
+                            {/*search box*/}
+                            {open && <Box sx={{ px: 2, paddingTop: 1, width: "110%" }}>
+                                <Search sx={{ borderRadius: 5, }}>
+                                    <SearchIconWrapper >
+                                        <img src={SearchIcon} alt="SearchIcon" width={24} height={24} />
+                                    </SearchIconWrapper>
+                                    <StyledInputBase
+                                        placeholder="Search…"
+                                        inputProps={{ 'aria-label': 'search' }}
+                                        sx={{
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            width: "100%",
+                                        }}
+                                    />
+
+                                </Search>
+                            </Box>}
+
+                            <List>
+                                {menuItems.map((item) => (
+                                    <React.Fragment key={item.text}>
+                                        <ListItem disablePadding sx={{ display: "block" }}>
+                                            <ListItemButton
+                                                onClick={() => handleItemClick(item.text)}
+                                                sx={{
+                                                    height: 25,
+
+                                                    justifyContent: open ? "initial" : "center",
+                                                    px: 2,
+                                                    py: open? 2:2.5,
+                                                    color: openSubMenu[item.text] ? "#01429B" : "inherit",
+                                                    backgroundColor: openSubMenu[item.text] ? "#EBF2FF" : "inherit",
+                                                    borderRadius: "12px",
+                                                    mx: openSubMenu[item.text] ? 0.5 : null,
+                                                    pl: openSubMenu[item.text] ? 2.2 : 2.5,
+                                                }}
+                                            >
+                                                {item.icon && (
+                                                    <ListItemIcon
+                                                        sx={{
+                                                            minWidth: 0,
+                                                            mr: open ? 2 : "auto",
+                                                            justifyContent: "center",
+                                                            filter: openSubMenu[item.text]
+                                                                ? "invert(17%) sepia(98%) saturate(2083%) hue-rotate(206deg) brightness(99%) contrast(92%)"
+                                                                : "none",
+                                                        }}
+                                                    >
+                                                        {item.icon}
+                                                    </ListItemIcon>
+                                                )}
+                                                <ListItemText
+                                                    primary={item.text}
+                                                    sx={{ opacity: open ? 1 : 0 }}
+                                                    primaryTypographyProps={{
+                                                        fontSize: "14px",
+                                                        fontWeight: openSubMenu[item.text] ? 600 : 400,
+                                                    }}
+                                                />
+                                                {open && item.children && (
+                                                    <div style={{ color: openSubMenu[item.text] ? "#1976d2" : "inherit" }}>
+                                                        {openSubMenu[item.text] ? <ExpandLess /> : <ExpandMore />}
+                                                    </div>
+                                                )}
+                                            </ListItemButton>
+                                        </ListItem>
+                                        {item.children && (
+                                            <Collapse in={openSubMenu[item.text]} timeout="auto" unmountOnExit>
+                                                {open && (
+                                                    <List component="div" disablePadding>
+                                                        {item.children.map((subItem, index) => (
+                                                            <ListItemButton
+                                                                onClick={() => handleChildClick(subItem.text)}
+                                                                key={subItem.text}
+                                                                sx={{
+                                                                    bgcolor: "#F4F6F8",
+                                                                    py: 0.2,
+                                                                    pl: 6,
+                                                                    position: "relative",
+                                                                    "&::before": {
+                                                                        content: '""',
+                                                                        position: "absolute",
+                                                                        left: 24,
+                                                                        top: "0%",
+                                                                        height: index === item.children.length - 1 ? "50%" : "100%",
+                                                                        width: "2px",
+                                                                        backgroundColor: "#C4C4C4", // Line color
+                                                                    },
+                                                                    "&::after": {
+                                                                        content: '""',
+                                                                        position: "absolute",
+                                                                        left: 22,
+                                                                        top: "50%",
+                                                                        transform: "translateY(-50%)",
+                                                                        width: 8,
+                                                                        height: 8,
+                                                                        borderRadius: "50%",
+                                                                        backgroundColor:
+                                                                            selectedChild === subItem.text ? "#01429B" : "#999",
+                                                                        transition: "background-color 0.3s ease-in-out", // Smooth transition effect
+                                                                    },
+                                                                    "&:hover::after": {
+                                                                        backgroundColor: "#01429B", // Change dot color on hover
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <ListItemText
+                                                                    primary={subItem.text}
+                                                                    primaryTypographyProps={{
+                                                                        fontSize: "12px", sx: {
+                                                                            color: selectedChild === subItem.text ? "#01429B" : "#000", // Change text color when selected
+                                                                            transition: "color 0.3s ease-in-out", // Smooth transition
+                                                                            "&:hover": {
+                                                                                color: "#01429B", // Change text color on hover
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                {open && (
+                                                                    <ListItemIcon sx={{ minWidth: 22, color: "gray" }}>
+                                                                        <ChevronRightIcon fontSize="small" />
+                                                                    </ListItemIcon>
+                                                                )}
+                                                            </ListItemButton>
+                                                        ))}
+                                                    </List>
+                                                )}
+                                            </Collapse>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </List>
+                        </Box>
+
+                        {/* Logout button at bottom of sidebar */}
+                        <Box sx={{
+
+                            position: 'relative',
+                            bottom: 0,
+                            width: '100%',
+                            borderTop: `1px solid ${theme.palette.divider}`,
+                            
+                        }}>
+                            <ListItemButton
+                                sx={{
+                                    minHeight: 48,
+                                    justifyContent: open ? 'initial' : 'center',
+                                    px: 2.5,
+                                    color: 'error.main',
+                                }}
+                            >
+                                <ListItemIcon
+                                    sx={{
+                                        minWidth: 0,
+                                        mr: open ? 3 : 'auto',
+                                        justifyContent: 'center',
+                                        color: 'error.main',
+                                    }}
+                                >
+                                    <LogoutIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
+                            </ListItemButton>
+                        </Box>
+
+
+                    </Box>
+
+                    <Box component="main" sx={{ flexGrow: 1, p: 0, display: 'flex', flexDirection: 'column', height: '100vh', width:"100%" }}>
 
 
 
-                {/* Main content area */}
-                <Box sx={{ flexGrow: 1, overflow: 'auto', position: 'relative', backgroundColor: '#F4F6F8' }}>
-                    {navPopupOpen && <MainScreenPage
 
-                        onClose={handleNavPopupClose}
-                        styled={{ zIndex: 1400, position: 'absolute' }}
-                    />}
-                    <Outlet />
+                        {/* Main content area */}
+                        <Box sx={{ flexGrow: 1, overflow: 'auto', backgroundColor: '#F4F6F8',  height: "100%" ,}}>
+                            {navPopupOpen && <MainScreenPage
 
+                                onClose={handleNavPopupClose}
+                                styled={{ zIndex: 1400, position: 'relative' }}
+                            />}
+                            <Outlet />
+
+                        </Box>
+                    </Box>
                 </Box>
             </Box>
-        </Box>
+        </ThemeProvider>
     );
 }
+
+export default Dashboard;
