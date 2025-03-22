@@ -1,13 +1,20 @@
 ﻿import * as React from "react";
-import { Box, Tab, Avatar, Typography, List, ListItem, ListItemAvatar, ListItemText, Divider, Button } from "@mui/material";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
-import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
-import FiberManualRecordRoundedIcon from '@mui/icons-material/FiberManualRecordRounded';
-import CardActionArea from '@mui/material/CardActionArea';
-import { toggleNotify } from '../Slice/GeneralStateSlice';
+import {
+    Box, Tab, Avatar, Typography, List, ListItem,
+    ListItemAvatar, ListItemText, Divider, Button,
+    CardActionArea
+} from "@mui/material";
+
+import { TabContext, TabList, TabPanel } from "@mui/lab";
+
+import {
+    ClearRounded as ClearRoundedIcon,
+    FiberManualRecordRounded as FiberManualRecordRoundedIcon
+} from '@mui/icons-material';
+
 import { useDispatch } from "react-redux";
+import { toggleNotify } from '../Slice/GeneralStateSlice';
+
 
 const notifications = {
     read: [

@@ -1,61 +1,59 @@
 import * as React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InputBase from '@mui/material/InputBase';
-import Avatar from '@mui/material/Avatar';
-import Badge from '@mui/material/Badge';
-import { Outlet } from "react-router-dom";
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Button from '@mui/material/Button';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import Link from '@mui/material/Link';
-import NotificationPage from '../component/pages/NotificationPage';
-import Popover from '@mui/material/Popover';
-
-import MainScreenPage from "../component/pages/MainScreenPage.jsx"
-import Collapse from '@mui/material/Collapse';
-import { Tooltip } from '@mui/material';
-
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import CenteredModal from "../component/pages/CenteredModal";
 import { useState } from 'react';
+import { Outlet, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-//new icons
+// Material UI
+import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import {
+    Box,
+    Toolbar,
+    List,
+    CssBaseline,
+    Typography,
+    Divider,
+    IconButton,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    InputBase,
+    Avatar,
+    Badge,
+    Popover,
+    Collapse,
+    Tooltip
+} from '@mui/material';
+
+import {
+    ChevronRight as ChevronRightIcon,
+    ExpandLess,
+    ExpandMore,
+    Logout as LogoutIcon,
+    SettingsOutlined as SettingsOutlinedIcon
+} from '@mui/icons-material';
+
+
+// Components
+import NotificationPage from '../component/pages/NotificationPage';
+import MainScreenPage from "../component/pages/MainScreenPage.jsx";
+
+// Redux
+import { setScreenPage, openSideBar, closeSidebar } from '../component/Slice/GeneralStateSlice';
+
+// Icons and Assets
 import logo from "../assets/logo.png";
 import DashboardIcon from "../icons/grid_view_25dp_CCCCCC_FILL0_wght400_GRAD0_opsz24.svg";
 import MenuOpenIcon from "../icons/menu_open_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import QuickLinksIcon from "../icons/dataset_linked_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import StarBorderIcon from "../icons/hotel_class_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import AccessTimeIcon from "../icons/alarm_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
-import NotificationsIcon from "../icons/notifications_unread_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg"
-
-import SettingsIcon from "../icons/settings_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
-import ChevronLeftIcon from "../icons/left_panel_close_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
+import NotificationsIcon from "../icons/notifications_unread_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg";
+import ChevronLeftIcon from "../icons/left_panel_close_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import DrawerOpen from '../icons/right_panel_close_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import SearchIcon from "../icons/manage_search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg"
-import LogoutIcon from '@mui/icons-material/Logout';
+import SearchIcon from "../icons/manage_search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg";
 
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from "react-redux";
-import { setScreenPage, openSideBar, closeSidebar } from '../component/Slice/GeneralStateSlice';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',

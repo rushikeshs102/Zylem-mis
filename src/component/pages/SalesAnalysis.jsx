@@ -1,18 +1,33 @@
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import SearchIcon from "../../icons/manage_search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg"
-import TableViewIcon from "@mui/icons-material/TableView";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
-import Button from "@mui/material/Button";
-import NotificationPage from '../pages/NotificationPage'
-import Divider from "@mui/material/Divider";
-import { MenuItem, Stack, FormControl, OutlinedInput, Select, InputLabel, Breadcrumbs } from "@mui/material";
-import Link from '@mui/material/Link';
-import CloseIcon1 from '@mui/icons-material/Close';
+import dayjs from 'dayjs';
+
+// material-ui imports
+import {
+    Box, Paper, Typography, TextField, InputAdornment, Button,
+    Divider, MenuItem, Stack, FormControl, OutlinedInput, Select,
+    InputLabel, Breadcrumbs, Link, Popover, Checkbox,
+    FormControlLabel, Tooltip, List, ListItem, IconButton
+} from "@mui/material";
+
+// MUI Icons
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+
+// MUI Icons
+import {
+    TableView as TableViewIcon, Close as CloseIcon1,
+    NavigateNext as NavigateNextIcon
+} from '@mui/icons-material';
+
+// Custom Components
+import { closeFilter, openFilter } from "../Slice/GeneralStateSlice";
+import CenteredModal from '../pages/CenteredModal';
+
+// Icons and Assets
+import SearchIcon from "../../icons/manage_search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg";
 import MinusCloseIcon from "../../icons/do_not_disturb_on_25dp_EA3323_FILL0_wght400_GRAD0_opsz24.svg";
 import EditIcon from "../../icons/border_color_25dp_2854C5_FILL0_wght400_GRAD0_opsz24.svg";
 import DragIndicatorIcon from "../../icons/drag_indicator_25dp_CCCCCC_FILL0_wght400_GRAD0_opsz24.svg";
@@ -21,23 +36,10 @@ import UpDownArrawIcon from "../../icons/sync_alt_24dp_F19E39_FILL0_wght400_GRAD
 import FilterIcon from "../../icons/filter_alt_25dp_48752C_FILL0_wght400_GRAD0_opsz24.svg";
 import DocsAddIcon from "../../icons/docs_add_on_25dp_48752C_FILL0_wght400_GRAD0_opsz24.svg";
 import CloseIcon from "../../icons/close_icon.svg";
-import Popover from "@mui/material/Popover";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Tooltip from "@mui/material/Tooltip";
-import { List, ListItem } from "@mui/material";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import dayjs from 'dayjs';
-import calandericon from "../../icons/finalcalender.svg"
-import { IconButton } from "@mui/material";
-import CenteredModal from '../pages/CenteredModal';
-import UploadIcon from "../../icons/upload_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg"
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import calandericon from "../../icons/finalcalender.svg";
+import UploadIcon from "../../icons/upload_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import FilterClose from "../../icons/dock_to_right_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-import { useSelector, useDispatch } from "react-redux";
-import { closeFilter, openFilter } from "../Slice/GeneralStateSlice"
+
 
 
 
