@@ -600,15 +600,17 @@ function Dashboard() {
                         {/* Logout button at bottom of sidebar */}
                         <Box sx={{
 
-                            position: 'relative',
+                            position: 'fixed',
                             bottom: 0,
-                            width: '100%',
-                            borderTop: `1px solid ${theme.palette.divider}`,
+                            width: '200px',
+                            border: `1px solid ${theme.palette.divider}`,
+                            height: "55px",
+                         
                             
                         }}>
                             <ListItemButton
                                 sx={{
-                                    minHeight: 48,
+                                   
                                     justifyContent: open ? 'initial' : 'center',
                                     px: 2.5,
                                     color: 'error.main',
@@ -616,7 +618,7 @@ function Dashboard() {
                             >
                                 <ListItemIcon
                                     sx={{
-                                        minWidth: 0,
+                                       
                                         mr: open ? 3 : 'auto',
                                         justifyContent: 'center',
                                         color: 'error.main',

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import dayjs from 'dayjs';
@@ -39,6 +39,7 @@ import CloseIcon from "../../icons/close_icon.svg";
 import calandericon from "../../icons/finalcalender.svg";
 import UploadIcon from "../../icons/upload_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 import FilterClose from "../../icons/dock_to_right_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+import RightArrow from "../../icons/east_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg";
 
 
 
@@ -105,9 +106,9 @@ function SalesAnalysis() {
     const [isFilterOpen, setIsFilterOpen] = useState(true);
 
     const [fromCalendarOpen, setFromCalendarOpen] = useState(false);
-    const [fromView, setFromView] = useState("year");
+    const [fromView, setFromView] = useState("day");
     const [toCalendarOpen, setToCalendarOpen] = useState(false);
-    const [toView, setToView] = useState("year");
+    const [toView, setToView] = useState("day");
     // criteria state
     const [selectedCriteria, setSelectedCriteria] = useState('');
     const [searchValue, setSearchValue] = useState('');
@@ -172,12 +173,20 @@ function SalesAnalysis() {
         const newSubTotalChecked = { ...subTotalChecked };
         delete newSubTotalChecked[item];
         setSubTotalChecked(newSubTotalChecked);
+
+        if (Object.keys(newSubTotalChecked).length === 0) {
+            handleCloseSubtotalPanel(false);
+        }
     };
 
     const handleRemoveOrderBy = (item) => {
         const newOrderByChecked = { ...orderByChecked };
         delete newOrderByChecked[item];
         setOrderByChecked(newOrderByChecked);
+
+        if (Object.keys(newOrderByChecked).length === 0) {
+            handleCloseOrderByPanel(false);
+        }
     };
 
     const handleEditClick = (event, item) => {
@@ -366,50 +375,81 @@ function SalesAnalysis() {
     };
 
     const handleFromCalendarOpen = (event) => {
+
         setFromCalendarAnchor(event.currentTarget);
+
         setFromCalendarOpen(true);
-        setFromView("year"); // Start with year selection
+
+        setFromView("day"); // Start with day selection
+
     };
 
     const handleFromCalendarClose = () => {
+
         setFromCalendarOpen(false);
+
     };
 
     const handleFromDateChange = (newDate) => {
+
+        setFromDate(newDate); // Always update the "From" date
+
+        // Close the calendar after selecting the year
+
         if (fromView === "year") {
-            setFromDate(newDate);
-            setFromView("month"); // Move to month selection
+
+            setFromCalendarOpen(false);
+
         } else if (fromView === "month") {
-            setFromDate(newDate);
-            setFromView("day"); // Move to day selection
-        } else {
-            setFromDate(newDate); // Final date selection
-            setFromCalendarOpen(false); // Close calendar after day selection
+
+            setFromView("year"); // Move to year selection after month selection
+
+        } else if (fromView === "day") {
+
+            setFromView("month"); // Move to month selection after day selection
+
         }
+
     };
 
     const handleToCalendarOpen = (event) => {
+
         setToCalendarAnchor(event.currentTarget);
+
         setToCalendarOpen(true);
-        setToView("year"); // Start with year selection
+
+        setToView("day"); // Start with day selection
+
     };
 
     const handleToCalendarClose = () => {
+
         setToCalendarOpen(false);
+
     };
 
     const handleToDateChange = (newDate) => {
+
+        setToDate(newDate); // Always update the "To" date
+
+        // Close the calendar after selecting the year
+
         if (toView === "year") {
-            setToDate(newDate);
-            setToView("month"); // Move to month selection
+
+            setToCalendarOpen(false);
+
         } else if (toView === "month") {
-            setToDate(newDate);
-            setToView("day"); // Move to day selection
-        } else {
-            setToDate(newDate); // Final date selection
-            setToCalendarOpen(false); // Close calendar after day selection
+
+            setToView("year"); // Move to year selection after month selection
+
+        } else if (toView === "day") {
+
+            setToView("month"); // Move to month selection after day selection
+
         }
+
     };
+
 
     const handleOpenFilter = () => {
         setIsFilterOpen(true);
@@ -507,13 +547,14 @@ function SalesAnalysis() {
                         type="text"
                         variant="outlined"
                         size="small"
-                        placeholder="Select value"
+                       
                         value={selectedArea}
                         fullWidth
+                        multiline
+                        rows={5}
                         sx={{
                             ...inputStyles,
                             '& .MuiOutlinedInput-root': {
-                                height: '35px',
                                 borderRadius: '10px',
                             }
                         }}
@@ -521,6 +562,7 @@ function SalesAnalysis() {
                             readOnly: true,
                         }}
                     />
+
                 );
 
             case 'Area':
@@ -532,7 +574,8 @@ function SalesAnalysis() {
                             overflowY: 'auto',
                             border: '1px solid #e0e0e0',
                             borderRadius: '8px',
-                            bgcolor: 'white'
+                            bgcolor: 'white',
+
                         }}>
                             {areas.map((area, index) => (
                                 <Box
@@ -567,12 +610,14 @@ function SalesAnalysis() {
                         variant="outlined"
                         size="small"
                         placeholder="Select value"
-                        fullWidth
+
                         sx={{
                             ...inputStyles,
+                            width: "97%",
                             '& .MuiOutlinedInput-root': {
                                 height: '35px',
                                 borderRadius: '10px',
+
                             }
                         }}
                         InputProps={{
@@ -686,13 +731,13 @@ function SalesAnalysis() {
 
         width: '239px',
 
-        height: '250px', // Fixed height to prevent overflow
+        height: '250px',
 
         borderRadius: '10px',
 
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
 
-        overflow: 'hidden', // Hide scrollbars
+        overflow: 'hidden',
 
         marginBottom: 0,
 
@@ -784,15 +829,17 @@ function SalesAnalysis() {
 
         },
 
+        // Selected date styling
+
         '& .MuiPickersDay-root.Mui-selected': {
 
-            backgroundColor: '#1a4b8c',
+            backgroundColor: '#1a2b4b', // Desired selected date color
 
             color: '#FFFFFF',
 
             fontWeight: 'bold',
 
-            border: '2px solid #1a4b8c',
+            border: '2px solid #1a2b4b', // Border for selected date
 
             width: '30px',
 
@@ -800,33 +847,17 @@ function SalesAnalysis() {
 
         },
 
+        // Today date with ring styling
+
         '& .MuiPickersDay-today': {
 
             position: 'relative',
 
             fontWeight: 'bold',
 
-        },
-
-        '& .MuiPickersDay-today::after': {
-
-            content: '""',
-
-            position: 'absolute',
-
-            bottom: '-2px',
-
-            left: '50%',
-
-            transform: 'translateX(-50%)',
-
-            width: '4px',
-
-            height: '4px',
+            border: '8px solid #1a2b4b', // Ring around today's date
 
             borderRadius: '50%',
-
-            backgroundColor: '#1a4b8c',
 
         },
 
@@ -872,6 +903,18 @@ function SalesAnalysis() {
 
         },
 
+        // Selected year styling
+
+        '& .MuiPickersYear-yearButton.Mui-selected': {
+
+            backgroundColor: '#1a2b4b', // Same background color for selected year
+
+            color: '#FFFFFF',
+
+            fontWeight: 'bold',
+
+        },
+
         // Month selection styling
 
         '& .MuiMonthCalendar-root': {
@@ -908,18 +951,43 @@ function SalesAnalysis() {
 
         },
 
+        // Selected month styling
+
+        '& .MuiPickersMonth-monthButton.Mui-selected': {
+
+            backgroundColor: '#1a2b4b', // Same background color for selected month
+
+            color: '#FFFFFF',
+
+            fontWeight: 'bold',
+
+        },
+
         '& .MuiPopover-paper': {
 
             minHeight: 'auto',
 
             maxHeight: '400px',
 
-            overflow: 'hidden', // Ensures no scrollbar appears
+            overflow: 'hidden',
 
         },
 
     };
 
+
+
+    //useEffect(() => {
+    //    console.log("Checking subtotal items outer");
+    //    if (Object.values(subTotalChecked).every(value => !value)) {
+    //        console.log("Closing subtotal panel");
+    //        setSubtotalPanelOpen(false);
+    //    }
+    //    if (Object.values(orderByChecked).every(value => !value)) {
+    //        console.log("Closing order by panel");
+    //        setOrderByPanelOpen(false);
+    //    }
+    //}, [subTotalChecked, orderByChecked]);
 
     return (
         <>
@@ -1125,7 +1193,7 @@ function SalesAnalysis() {
                                                 value={fromDate ? dayjs(fromDate).format("DD/MM/YYYY") : ""} InputProps={{
                                                     sx: {
                                                         ...inputStyles,
-                                                        color: fromDate ? '#314151' : '#9CA3B7',
+                                                        color: fromDate ? '#314151' : '#9CA3B7'
                                                     },
                                                     endAdornment: (
                                                         <IconButton
@@ -1160,7 +1228,8 @@ function SalesAnalysis() {
                                                     <DateCalendar
                                                         value={fromDate}
                                                         onChange={handleFromDateChange}
-                                                        views={[fromView]} // Dynamically change views
+                                                        views={['day', 'month', 'year']} // Order of views: Day → Month → Year
+                                                        openTo={fromView} // Set the initial view dynamically
                                                         sx={calendarStyle}
                                                     />
                                                 </LocalizationProvider>
@@ -1185,7 +1254,7 @@ function SalesAnalysis() {
                                                         </IconButton>
                                                     )
                                                 }}
-                                                sx={{ width: '96%' }}
+                                                sx={{ width: '90%' }}
                                                 InputLabelProps={{ shrink: true }}
                                             />
                                             <Popover
@@ -1206,7 +1275,8 @@ function SalesAnalysis() {
                                                     <DateCalendar
                                                         value={toDate}
                                                         onChange={handleToDateChange}
-                                                        views={[toView]} // Dynamically change views
+                                                        views={['day', 'month', 'year']} // Order of views: Day → Month → Year
+                                                        openTo={toView} // Set the initial view dynamically
                                                         sx={calendarStyle}
                                                     />
                                                 </LocalizationProvider>
@@ -1498,7 +1568,7 @@ function SalesAnalysis() {
                                             sx={{ margin: 0, mb: 2, mr: 2 }}
                                         />
                                     </Box>
-                                    <Box sx={{ mb: 2 }}>
+                                    <Box sx={{ mb: 2, width: '97%' }}>
                                         <InputLabel sx={labelStyles}>Criteria</InputLabel>
                                         <FormControl fullWidth>
                                             <Select
@@ -1526,19 +1596,19 @@ function SalesAnalysis() {
                                                 <MenuItem value="" disabled sx={{ fontSize: "12px" }}>Select Filter</MenuItem>
                                                 <MenuItem value="Account" sx={{ fontSize: "12px" }}>Account</MenuItem>
                                                 <MenuItem value="City" sx={{ fontSize: "12px" }}>City</MenuItem>
-                                                <MenuItem value="Area" sx={{ fontSize: "12px" }}>Area</MenuItem>
+                                                {/*<MenuItem value="Area" sx={{ fontSize: "12px" }}>Area</MenuItem>*/}
                                                 <MenuItem value="Date" sx={{ fontSize: "12px" }}>Date</MenuItem>
                                             </Select>
                                         </FormControl>
                                     </Box>
 
-                                    <Box sx={{ pb: 2, }}>
+                                    <Box sx={{ pb: 2, width: '97%' }}>
                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                                             <InputLabel sx={labelStyles}>Value</InputLabel>
                                             {selectedCriteria === 'City' && (
                                                 <Typography
                                                     component="a"
-                                                    sx={{ color: '#1976d2', cursor: 'pointer', textDecoration: 'none' }}
+                                                    sx={{ color: ' #1b2c4a', cursor: 'pointer', textDecoration: 'underline', fontSize: '12px', paddingRight: '20px', fontWeight: 700 }}
                                                     onClick={() => setSelectedCriteria('Area')}
                                                 >
                                                     Area
@@ -1691,120 +1761,169 @@ function SalesAnalysis() {
                                             <Box sx={{ display: "flex", flexDirection: "column" }}>
                                                 <Box sx={{ display: "flex", justifyContent: "space-between", flexDirection: "row" }}>
                                                     <Typography variant="h9" fontWeight="bold">
+
                                                         Rows
                                                     </Typography>
-                                                    {rows.length > 0 &&
-                                                        (<Box sx={{ display: "flex", flexDirection: "row" }}>
-                                                            {Object.values(subTotalChecked).some(value => value === true) && (
-                                                                <Tooltip
-                                                                    title={
-                                                                        <Box
-                                                                            sx={{
-                                                                                backgroundColor: "#121212",
-                                                                                height: "auto",
-                                                                                overflow: "auto",
 
-                                                                            }}
+                                                    <Box sx={{ display: "flex", flexDirection: "row" }}>
+
+                                                        {Object.values(subTotalChecked).some(value => value === true) && (
+                                                            <Tooltip
+
+                                                                title={
+                                                                    <Box
+
+                                                                        sx={{
+
+                                                                            backgroundColor: "#121212",
+
+                                                                            height: "auto",
+
+                                                                            overflow: "auto",
+
+                                                                        }}
+                                                                    >
+                                                                        <Typography
+
+                                                                            sx={{ fontSize: "12px", color: "#fff" }}
                                                                         >
-                                                                            <Typography
 
-                                                                                sx={{ fontSize: "12px", color: "#fff" }}
-                                                                            >
-                                                                                {getSubTotalTooltipContent()}
-                                                                            </Typography>
-                                                                        </Box>
-                                                                    }
-                                                                    arrow
-                                                                    PopperProps={{
-                                                                        sx: {
-                                                                            "& .MuiTooltip-tooltip": {
-                                                                                backgroundColor: "#121212",
-                                                                                color: "text.primary",
-                                                                            },
-                                                                        },
-                                                                    }}
-                                                                >
-                                                                    <Box component="span" onClick={handleSubtotalIconClick}>
-                                                                        <img src={SigmaIcon} alt="SigmaIcon" width={24} height={24} style={{ cursor: 'pointer' }} />
+                                                                            {getSubTotalTooltipContent()}
+                                                                        </Typography>
                                                                     </Box>
-                                                                </Tooltip>
 
-                                                            )}
+                                                                }
 
-                                                            {Object.values(orderByChecked).some(value => value === true) && (
-                                                                <Tooltip
-                                                                    title={
-                                                                        <Box
-                                                                            sx={{
-                                                                                backgroundColor: "#121212",
-                                                                                height: "auto",
-                                                                                overflow: "auto",
+                                                                arrow
 
-                                                                            }}
+                                                                PopperProps={{
+
+                                                                    sx: {
+
+                                                                        "& .MuiTooltip-tooltip": {
+
+                                                                            backgroundColor: "#121212",
+
+                                                                            color: "text.primary",
+
+                                                                        },
+
+                                                                    },
+
+                                                                }}
+                                                            >
+                                                                <Box component="span" onClick={handleSubtotalIconClick}>
+                                                                    <img src={SigmaIcon} alt="SigmaIcon" width={24} height={24} style={{ cursor: 'pointer' }} />
+                                                                </Box>
+                                                            </Tooltip>
+                                                        )}
+
+                                                        {Object.values(orderByChecked).some(value => value === true) && (
+                                                            <Tooltip
+
+                                                                title={
+                                                                    <Box
+
+                                                                        sx={{
+
+                                                                            backgroundColor: "#121212",
+
+                                                                            height: "auto",
+
+                                                                            overflow: "auto",
+
+                                                                        }}
+                                                                    >
+                                                                        <Typography
+
+                                                                            sx={{ fontSize: "12px", color: "#fff" }}
                                                                         >
-                                                                            <Typography
 
-                                                                                sx={{ fontSize: "12px", color: "#fff" }}
-                                                                            >
-                                                                                {getOrderByTooltipContent()}
-                                                                            </Typography>
-                                                                        </Box>
-                                                                    }
-                                                                    arrow
-                                                                    PopperProps={{
-                                                                        sx: {
-                                                                            "& .MuiTooltip-tooltip": {
-                                                                                backgroundColor: "#121212",
-                                                                                color: "text.primary",
-                                                                            },
-                                                                        },
-                                                                    }}
-                                                                >
-                                                                    <Box component="span" onClick={handleOrderByIconClick}>
-                                                                        <img src={UpDownArrawIcon} alt="UpDownArrawIcon" width={24} height={24} style={{ cursor: 'pointer', transform: 'rotate(90deg)' }} />
+                                                                            {getOrderByTooltipContent()}
+                                                                        </Typography>
                                                                     </Box>
-                                                                </Tooltip>
 
-                                                            )}
-                                                            {selectedCriteria && (
-                                                                <Tooltip
-                                                                    title={
-                                                                        <Box
-                                                                            sx={{
-                                                                                backgroundColor: "#121212",
-                                                                                height: "auto",
-                                                                                overflow: "auto",
+                                                                }
 
-                                                                            }}
+                                                                arrow
+
+                                                                PopperProps={{
+
+                                                                    sx: {
+
+                                                                        "& .MuiTooltip-tooltip": {
+
+                                                                            backgroundColor: "#121212",
+
+                                                                            color: "text.primary",
+
+                                                                        },
+
+                                                                    },
+
+                                                                }}
+                                                            >
+                                                                <Box component="span" onClick={handleOrderByIconClick}>
+                                                                    <img src={UpDownArrawIcon} alt="UpDownArrawIcon" width={24} height={24} style={{ cursor: 'pointer', transform: 'rotate(90deg)' }} />
+                                                                </Box>
+                                                            </Tooltip>
+
+                                                        )}
+
+                                                        {selectedCriteria && (
+                                                            <Tooltip
+
+                                                                title={
+                                                                    <Box
+
+                                                                        sx={{
+
+                                                                            backgroundColor: "#121212",
+
+                                                                            height: "auto",
+
+                                                                            overflow: "auto",
+
+                                                                        }}
+                                                                    >
+                                                                        <Typography
+
+                                                                            sx={{ fontSize: "12px", color: "#fff" }}
                                                                         >
-                                                                            <Typography
 
-                                                                                sx={{ fontSize: "12px", color: "#fff" }}
-                                                                            >
-                                                                                {getFilterTooltipContent()}
-                                                                            </Typography>
-                                                                        </Box>
-                                                                    }
-                                                                    arrow
-                                                                    PopperProps={{
-                                                                        sx: {
-                                                                            "& .MuiTooltip-tooltip": {
-                                                                                backgroundColor: "#121212",
-                                                                                color: "text.primary",
-                                                                            },
-                                                                        },
-                                                                    }}
-                                                                >
-                                                                    <Box component="span">
-                                                                        <img src={FilterIcon} alt="FilterIcon" width={24} height={24} />
+                                                                            {getFilterTooltipContent()}
+                                                                        </Typography>
                                                                     </Box>
-                                                                </Tooltip>
-                                                            )}
 
+                                                                }
 
-                                                        </Box>)}
+                                                                arrow
+
+                                                                PopperProps={{
+
+                                                                    sx: {
+
+                                                                        "& .MuiTooltip-tooltip": {
+
+                                                                            backgroundColor: "#121212",
+
+                                                                            color: "text.primary",
+
+                                                                        },
+
+                                                                    },
+
+                                                                }}
+                                                            >
+                                                                <Box component="span">
+                                                                    <img src={FilterIcon} alt="FilterIcon" width={24} height={24} />
+                                                                </Box>
+                                                            </Tooltip>
+                                                        )}
+                                                    </Box>
                                                 </Box>
                                                 <Typography variant="body2" color="text.secondary">
+
                                                     Selected controllers ({rows.length})
                                                 </Typography>
                                                 <Button
@@ -1828,6 +1947,7 @@ function SalesAnalysis() {
                                             </Box>
                                         </Paper>
 
+
                                         {/* Subtotal box popover */}
 
                                         <Popover
@@ -1848,7 +1968,8 @@ function SalesAnalysis() {
                                                 p: 2,
                                                 border: '1px solid #e0e0e0',
                                                 borderRadius: 2,
-                                                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)'
+                                                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
+
                                             }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                                                     <Typography variant="subtitle1" fontWeight="bold">Subtotal</Typography>
